@@ -218,7 +218,9 @@ function sirportly_client_area()
   if (sirportly_enabled() && $_SESSION['uid'] ) {
     global $smarty;
     $sirportly_settings = sirportly_settings();
-    $open_tickets = sirportly_open_tickets($sirportly_settings['token'],$sirportly_settings['secret'], 'WHMCS-'.$_SESSION['uid']);
+    $sirportly_customer = select_query('sirportly_customers', '', array('userid' => $_SESSION['uid']));
+    $sirportly_customer = mysql_fetch_array($sirportly_customer,MYSQL_ASSOC);
+    $open_tickets = sirportly_open_tickets($sirportly_settings['token'],$sirportly_settings['secret'], $sirportly_customer['customerid']);
     $clientsstats = $smarty->get_template_vars('clientsstats');
 		$clientsstats['numactivetickets'] = count($open_tickets);
     $smarty->assign_by_ref('tickets', $open_tickets);

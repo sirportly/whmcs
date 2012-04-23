@@ -136,7 +136,7 @@ function sirportly_clientarea_tickets($token,$secret,$customer,$brand=''){
 function sirportly_open_tickets($token,$secret,$customer)
 {
   $ticket_array = array();
-  $tickets = sirportly_api('/api/v1/tickets/spql',$token,$secret,array('spql' => "SELECT tickets.reference, tickets.id, tickets.subject, statuses.name, departments.name, tickets.last_update_posted_at, tickets.submitted_at, priorities.name FROM tickets WHERE tickets.status_type != '1' AND customers.reference = '".$customer."'"));
+  $tickets = sirportly_api('/api/v1/tickets/spql',$token,$secret,array('spql' => "SELECT tickets.reference, tickets.id, tickets.subject, statuses.name, departments.name, tickets.last_update_posted_at, tickets.submitted_at, priorities.name FROM tickets WHERE tickets.status_type != '1' AND customers.id = '".$customer."'"));
   
   foreach ($tickets['results'] as $key => $ticket) {
     $created_at = fromMySQLDate($ticket['6'],'time');
