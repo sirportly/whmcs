@@ -130,7 +130,7 @@ function sirportly_clientarea_viewticket(){
             );
         }
       }
-      
+
       $smarty->assign_by_ref('descreplies',array_reverse($replies));
       $smarty->display($template.'/header.tpl');
       $smarty->display('../modules/addons/sirportly/templates/view_ticket.tpl');
@@ -267,19 +267,19 @@ function sirportly_close_ticket(){
       sirportly_api('/api/v1/tickets/update',$sirportly_settings['token'],$sirportly_settings['secret'],array('ticket' => $_GET['tid'],'status' => $sirportly_settings['closed_status']));
   }
 }
-add_hook("ClientEdit",1,"update_sirportly_email");
+add_hook("ClientEdit",111,"update_sirportly_email");
 
-add_hook("ClientAreaPage",2,"sirportly_close_ticket");
+add_hook("ClientAreaPage",112,"sirportly_close_ticket");
 
-add_hook("ClientAreaPage",1,"sirportly_link_accounts");
-add_hook("ClientAreaPage",1,"sirportly_clientstats");
+add_hook("ClientAreaPage",111,"sirportly_link_accounts");
+add_hook("ClientAreaPage",111,"sirportly_clientstats");
 
-add_hook("ClientAreaPage",3,"sirportly_clientarea_viewticket");
-add_hook("ClientAreaPage",1,"sirportly_post_reply");
-add_hook("ClientAreaPage",2,"sirportly_redirect_if_enabled");
-add_hook("ClientAreaPage",2,"sirportly_tickets");
-add_hook("ClientAreaPage",2,"sirportly_step_1");
-add_hook("ClientAreaPage",2,"sirportly_step_2");
+add_hook("ClientAreaPage",113,"sirportly_clientarea_viewticket");
+add_hook("ClientAreaPage",111,"sirportly_post_reply");
+add_hook("ClientAreaPage",112,"sirportly_redirect_if_enabled");
+add_hook("ClientAreaPage",112,"sirportly_tickets");
+add_hook("ClientAreaPage",100,"sirportly_step_1"); #112
+add_hook("ClientAreaPage",112,"sirportly_step_2");
 
-add_hook("ClientAreaPage",3,"sirportly_client_area");
+add_hook("ClientAreaPage",113,"sirportly_client_area");
 ?>
