@@ -133,11 +133,10 @@ function sirportly_clientarea_tickets($token,$secret,$customer,$brand=''){
   return $ticket_array;
 }
 
-function sirportly_open_tickets($token,$secret,$customer)
+function sirportly_open_tickets($token,$secret,$customer,$brand)
 {
   $ticket_array = array();
-  $tickets = sirportly_api('/api/v1/tickets/spql',$token,$secret,array('spql' => "SELECT tickets.reference, tickets.id, tickets.subject, statuses.name, departments.name, tickets.last_update_posted_at, tickets.submitted_at, priorities.name FROM tickets WHERE tickets.status_type != '1' AND customers.id = '".$customer."'"));
-  
+  $tickets = sirportly_api('/api/v1/tickets/spql',$token,$secret,array('spql' => "SELECT tickets.reference, tickets.id, tickets.subject, statuses.name, departments.name, tickets.last_update_posted_at, tickets.submitted_at, priorities.name FROM tickets WHERE tickets.status_type != '1' AND customers.id = '".$customer."' AND brands.id = '".$brand."'"));
   foreach ($tickets['results'] as $key => $ticket) {
     $created_at = fromMySQLDate($ticket['6'],'time');
     $last_updated = ($ticket['5'] ? fromMySQLDate($ticket['5'],'time') : 'Never'); 

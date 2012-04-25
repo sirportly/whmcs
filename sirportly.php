@@ -8,7 +8,7 @@ function sirportly_config() {
     $configarray = array(
     "name" => "Sirportly",
     "description" => "",
-    "version" => "1.0",
+    "version" => "1.1",
     "author" => "aTech Media",
       "fields" => array(
         "url" => array ("FriendlyName" => "API URL", "Type" => "text", "Size" => "50", "Default" => "api.sirportly.com", "Description" => "Without a trailing /"),
@@ -41,6 +41,15 @@ function sirportly_activate() {
   mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'priority', '0');");
   
   return array('status'=>'success');
+}
+
+function sirportly_upgrade($vars){
+  $version = $vars['version'];
+        
+  if ($version < 1.1) {
+    mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'close_ticket', '0');");
+    mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'closed_status', '0');");
+  }
 }
 
 function sirportly_deactivate() {
@@ -80,6 +89,8 @@ function sirportly_output($vars)
       update_query('tbladdonmodules',array('value' => $_POST['brand']), array('module'=>'sirportly', 'setting' => 'brand'));
       update_query('tbladdonmodules',array('value' => $_POST['status']), array('module'=>'sirportly', 'setting' => 'status'));
       update_query('tbladdonmodules',array('value' => $_POST['priority']), array('module'=>'sirportly', 'setting' => 'priority'));
+      update_query('tbladdonmodules',array('value' => $_POST['close_ticket']), array('module'=>'sirportly', 'setting' => 'close_ticket'));
+      update_query('tbladdonmodules',array('value' => $_POST['closed_status']), array('module'=>'sirportly', 'setting' => 'closed_status'));
     }
      
     $sirportly_settings = sirportly_settings();
@@ -98,7 +109,7 @@ echo '<p>By selecting a brand below all tickets opened via the client area will 
             echo '<option'.($sirportly_settings['brand'] == $key ? ' selected=selected':'').' value="'.$key.'">'.$value.'</option>';
           }
 echo '
-        </td>
+       </select> </td>
       </tr>
       
       <tr>
@@ -108,7 +119,7 @@ echo '
             echo '<option'.($sirportly_settings['status'] == $key ? ' selected=selected':'').' value="'.$key.'">'.$value.'</option>';
           }
 
-echo '</td>
+echo '</select></td>
       </tr>
       
       <tr>
@@ -118,7 +129,23 @@ echo '</td>
             echo '<option'.($sirportly_settings['priority'] == $value['id'] ? ' selected=selected':'').' value="'.$value['id'].'">'.$value['name'] .'</option>';
           }
           
-echo ' </td>
+echo ' </select></td>
+      </tr>
+      <tr>
+        <td width="20%" class="fieldlabel">Allow Clients to Close Tickets</td>
+        <td class="fieldarea"><select name="close_ticket">
+          <option'.($sirportly_settings['close_ticket'] == '1' ? ' selected=selected':'').' value="1">Yes</option>
+          <option'.($sirportly_settings['close_ticket'] == '0' ? ' selected=selected':'').' value="0">No</option>         
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td width="20%" class="fieldlabel">Closed Ticket Status</td>
+        <td class="fieldarea"><select name="closed_status">';
+          foreach ($status as $key => $value) {
+            echo '<option'.($sirportly_settings['closed_status'] == $key ? ' selected=selected':'').' value="'.$key.'">'.$value.'</option>';
+          } 
+        echo '</select></td>
       </tr>
     </table>
     <p align="center"><input type="submit" value="Save Changes" /></p>

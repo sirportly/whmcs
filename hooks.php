@@ -118,6 +118,7 @@ function sirportly_clientarea_viewticket(){
       $smarty->assign_by_ref('date',fromMySQLDate($ticket['submitted_at'],'time'));
       $smarty->assign_by_ref('tid',$ticket['reference']);
       $smarty->assign_by_ref('c',$ticket['id']);
+      $smarty->assign('showclosebutton', $sirportly_settings['close_ticket']);
     
       foreach ($ticket['updates'] as $key => $value){ 
         if (!$value['private']) {
@@ -206,7 +207,7 @@ function sirportly_clientstats()
 		$customerid = mysql_fetch_array(select_query('sirportly_customers', '', array('userid' => $_SESSION['uid'])), MYSQL_ASSOC);
     $sirportly_settings = sirportly_settings();
     $clientsstats = $smarty->get_template_vars('clientsstats');
-    $query = "SELECT COUNT FROM tickets WHERE customers.id = '".$customerid['customerid']."'";
+    $query = "SELECT COUNT FROM tickets WHERE customers.id = '".$customerid['customerid']."' AND brands.id = '".$sirportly_settings['brand']."'";
     $tickets = sirportly_spql($sirportly_settings['token'],$sirportly_settings['secret'],$query);
     $clientsstats['numtickets'] = $tickets['results']['0']['0'];
     $smarty->assign_by_ref('clientsstats',$clientsstats);
@@ -220,7 +221,7 @@ function sirportly_client_area()
     $sirportly_settings = sirportly_settings();
     $sirportly_customer = select_query('sirportly_customers', '', array('userid' => $_SESSION['uid']));
     $sirportly_customer = mysql_fetch_array($sirportly_customer,MYSQL_ASSOC);
-    $open_tickets = sirportly_open_tickets($sirportly_settings['token'],$sirportly_settings['secret'], $sirportly_customer['customerid']);
+    $open_tickets = sirportly_open_tickets($sirportly_settings['token'],$sirportly_settings['secret'], $sirportly_customer['customerid'], $sirportly_settings['brand']);
     $clientsstats = $smarty->get_template_vars('clientsstats');
 		$clientsstats['numactivetickets'] = count($open_tickets);
     $smarty->assign_by_ref('tickets', $open_tickets);
@@ -256,13 +257,24 @@ function update_sirportly_email($vars){
 		}
 	}	
 }
+
+
+function sirportly_close_ticket(){
+  $sirportly_settings = sirportly_settings();
+  if (basename($_SERVER['SCRIPT_NAME']) == 'viewticket.php' && sirportly_enabled() && $_GET['c'] && $_GET['tid'] && $_GET['closeticket'] && $sirportly_settings['close_ticket']) {
+    if (!$_SESSION['uid']) { header('Location: login.php'); exit; }
+      
+      sirportly_api('/api/v1/tickets/update',$sirportly_settings['token'],$sirportly_settings['secret'],array('ticket' => $_GET['tid'],'status' => $sirportly_settings['closed_status']));
+  }
+}
 add_hook("ClientEdit",1,"update_sirportly_email");
 
+add_hook("ClientAreaPage",2,"sirportly_close_ticket");
 
 add_hook("ClientAreaPage",1,"sirportly_link_accounts");
 add_hook("ClientAreaPage",1,"sirportly_clientstats");
 
-add_hook("ClientAreaPage",2,"sirportly_clientarea_viewticket");
+add_hook("ClientAreaPage",3,"sirportly_clientarea_viewticket");
 add_hook("ClientAreaPage",1,"sirportly_post_reply");
 add_hook("ClientAreaPage",2,"sirportly_redirect_if_enabled");
 add_hook("ClientAreaPage",2,"sirportly_tickets");
