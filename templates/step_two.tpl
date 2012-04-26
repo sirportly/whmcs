@@ -102,7 +102,7 @@ getticketsuggestions();
 
 <div class="actions">
     <input class="btn primary" type="submit" name="save" value="{$LANG.supportticketsticketsubmit}" />
-    <input class="btn" type="reset" value="{$LANG.cancel}" />
+    <input class="btn" type="reset" value="{$LANG.cancel}" onclick="window.location='supporttickets.php'" />
 </div>
 
 </form>
