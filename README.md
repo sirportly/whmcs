@@ -46,3 +46,12 @@ The module also allows Sirportly to takeover the support ticket area within the 
 `Default Ticket Priority` The client can still choose the priority when submitting a ticket.
 
 Once all three options are saved all support tickets will be added to Sirportly, **not** WHMCS.
+
+## Single Sign On
+'SSO' allows you to integrate your public interface with WHMCS, all you need to do is navigate to your Sirportly administration area > Public Interfaces > *click the link* > SSO
+
+![SSO](http://cloud.atechmedia.com/sirportly/publicinterfacesso.png)
+
+`SSO URL` This is the URL to your WHMCS installation and the following /modules/addons/sirportly/sso.php
+
+The rest of the fields are optional
