@@ -39,6 +39,29 @@ function sirportly_api($action,$token,$secret,$postfields=array()){
   
 }
 
+function sirportly_admin($action,$token,$secret,$postfields=array()){
+  $settings = sirportly_settings();
+  $ssl = ($settings['ssl'] == 'on' ? 'https://' : 'http://');
+  $url = $ssl.$settings['url'];
+  
+  $curl = curl_init();	
+
+	$header = array('X-Auth-Token: '.$token, 'X-Auth-Secret: '.$secret);
+	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+	curl_setopt($curl, CURLOPT_VERBOSE, 0);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+	curl_setopt($curl, CURLOPT_URL, $url.$action);
+	curl_setopt($curl, CURLOPT_BUFFERSIZE, 131072);
+	curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+	curl_setopt($curl, CURLOPT_POSTFIELDS, $postfields);
+
+	$result = curl_exec($curl);
+	curl_close($curl);
+	return json_decode($result, true);
+  
+}
+
 
 function sirportly_brands($token,$secret){
   $brand_array = array();

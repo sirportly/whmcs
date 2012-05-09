@@ -70,9 +70,216 @@ function sirportly_output($vars)
 {
   
   
-  echo '<p><strong>Options:</strong> <a href="addonmodules.php?module=sirportly">Customer Data Source</a> | <a href="addonmodules.php?module=sirportly&action=support">Support Tickets</a></p>';
+  echo '<p><strong>Options:</strong> <a href="addonmodules.php?module=sirportly">Customer Data Source</a> | <a href="addonmodules.php?module=sirportly&action=support">Support Tickets</a>| <a href="addonmodules.php?module=sirportly&action=import">Import Support Tickets</a></p>';
   
   switch ($_GET['action']) {
+    
+    case 'import':
+      # can only continue if token & secret has been set
+      if (!$vars['token'] || !$vars['secret']) { echo '<div class="errorbox"><strong>An Error Occured!</strong><br />Please enter your API Token and/or Secret.</div>'; return; }
+      
+      
+      # lets start the import
+      if ($_SESSION['administrators']) {
+        foreach ($_POST as $key => $value) { $_SESSION[$key] = $value; }
+        
+        # fetch list of tickets
+        $tickets = select_query('tbltickets');
+        while ($ticket = mysql_fetch_array($tickets, MYSQL_ASSOC)) {
+          echo '<br>- Importing ticket #'.$ticket['id'].'<br>';
+          # fetch client details
+          if ($ticket['userid']) {
+            $client = select_query('tblclients', 'firstname,lastname,email', array('id' => $ticket['userid']));
+            $client = mysql_fetch_array($client,MYSQL_ASSOC);
+          } else {
+            $client = array('firstname' => $ticket['name'], 'lastname' => '', 'email' => $ticket['email']);
+          }
+
+         
+          # prepare ticket payload
+          $ticket_payload                 = array();
+          $ticket_payload['subject']      = $ticket['title'];
+          $ticket_payload['status']       = $_SESSION['statuses'][$ticket['status']];
+          $ticket_payload['priority']     = $_SESSION['priorities'][$ticket['urgency']];
+          $ticket_payload['department']   = $_SESSION['departments'][$ticket['did']];
+          $ticket_payload['submitted_at'] = $ticket['date']; 
+          $ticket_payload['name']         = $client['firstname'].' '.$client['lastname']; 
+          $ticket_payload['email']        = $client['email'];
+          
+          # create ticket
+          $sirportly_ticket = sirportly_admin('/api/v1/tickets/submit',$vars['token'],$vars['secret'],$ticket_payload);
+          
+          # add initial reply to ticket
+          echo '- Adding reply to ticket <br>';
+          $reply_payload = array();
+          $reply_payload['ticket'] = $sirportly_ticket['reference'];
+          $reply_payload['message'] = $ticket['message'];
+          $reply_payload['posted_at'] = $ticket['date'];
+          
+          
+          if ($ticket['admin']) {
+            $reply_payload['user'] = $_SESSION['administrators'][$ticket['admin']];
+          } else {
+            $reply_payload['author_name'] = $client['firstname'] .' '.$client['lastname'];
+            $reply_payload['author_email'] = $client['email'];
+          }
+      
+          $sirportly_reply = sirportly_admin('/api/v1/tickets/post_update',$vars['token'],$vars['secret'],$reply_payload);
+          
+          # attachments
+            global $attachments_dir;
+            $attachments = explode('|', $ticket['attachment']);
+            foreach ($attachments as $key => $value) {
+              if ($value) {
+                $attachment_payload = array();
+                $attachment_payload['ticket'] = $sirportly_ticket['reference'];
+                $attachment_payload['update'] = $sirportly_reply['id'];
+                $attachment_payload['file'] = '@'.$attachments_dir.$value;
+  
+                $sirportly_attachment = sirportly_admin('/api/v1/tickets/add_attachment',$vars['token'],$vars['secret'],$attachment_payload);
+              }              
+            }
+          
+        
+          # fetch ticket replies
+          $replies = select_query('tblticketreplies', '', array('tid' => $ticket['id']));
+          while ($reply = mysql_fetch_array($replies, MYSQL_ASSOC)) {
+            echo '- Adding reply to ticket <br>';
+            $reply_payload = array();
+            $reply_payload['ticket'] = $sirportly_ticket['reference'];
+            $reply_payload['message'] = $reply['message'];
+            $reply_payload['posted_at'] = $reply['date'];
+            
+            
+            if ($reply['admin']) {
+              $reply_payload['user'] = $_SESSION['administrators'][$reply['admin']];
+            } else {
+              $reply_payload['author_name'] = $reply['name'];
+              $reply_payload['author_email'] = $reply['email'];
+            }
+            
+            # create update
+            $sirportly_reply = sirportly_admin('/api/v1/tickets/post_update',$vars['token'],$vars['secret'],$reply_payload);
+            
+           # attachments
+            global $attachments_dir;
+            $attachments = explode('|', $reply['attachment']);
+            foreach ($attachments as $key => $value) {
+              if ($value) {
+                $attachment_payload = array();
+                $attachment_payload['ticket'] = $sirportly_ticket['reference'];
+                $attachment_payload['update'] = $sirportly_reply['id'];
+                $attachment_payload['file'] = '@'.$attachments_dir.$value;
+  
+                $sirportly_attachment = sirportly_admin('/api/v1/tickets/add_attachment',$vars['token'],$vars['secret'],$attachment_payload);
+              }              
+            }
+            
+          
+            
+            
+            # reset updated_at field to last reply time
+            sirportly_admin('/api/v1/tickets/update',$vars['token'],$vars['secret'],array('ticket' => $sirportly_ticket['reference'], 'updated_at' => $reply['date']));
+            
+          }
+          
+      
+          
+        
+      
+        
+          
+          
+         
+          
+          
+          # set the timeout to 60 again
+          set_time_limit(60);
+        }
+        
+        
+      
+        
+       
+      
+        continue;
+      }
+      
+      $whmcs_administrators = select_query('tbladmins');
+      $sirportly_administrators = sirportly_api('/api/v1/users/all',$vars['token'],$vars['secret']);
+      
+      $whmcs_departments = select_query('tblticketdepartments');
+      $sirportly_departments = sirportly_api('/api/v1/objects/departments',$vars['token'],$vars['secret']);
+      
+      $whmcs_priorities = array('Low', 'Medium', 'High');
+      $sirportly_priorities = sirportly_api('/api/v1/objects/priorities',$vars['token'],$vars['secret']);
+      
+      $whmcs_statuses = select_query('tblticketstatuses');
+      $sirportly_statuses = sirportly_api('/api/v1/objects/statuses',$vars['token'],$vars['secret']);
+      
+      $whmcs_customfields = select_query('tblcustomfields', '', array('type' => 'support'));
+      # administrators
+      
+      echo '
+      <form method="POST" action="addonmodules.php?module=sirportly&action=import">
+      <h2>Administrators</h2>
+      <p>Please map your current list of administrators to those that exist within Sirportly.</p>
+        <form method="POST" action="addonmodules.php?module=sirportly&action=support">
+          <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">';
+            while ($administrator = mysql_fetch_array($whmcs_administrators, MYSQL_ASSOC)) {
+              echo '<tr><td width="20%" class="fieldlabel">'.$administrator['firstname'].' '.$administrator['lastname'].'</td><td class="fieldarea"><select name="administrators['.$administrator['firstname'].' '.$administrator['lastname'].']">';
+              foreach ($sirportly_administrators['records'] as $key => $value) {
+                echo '<option value="'.$value['id'].'">'.$value['first_name'].' '.$value['last_name'].' ('.$value['email_address'].')</option>';
+              }  
+            }
+
+                 echo '</table><h2>Departments</h2>
+       <p>Please map your current list of administrators to those that exist within Sirportly.</p>
+         <form method="POST" action="addonmodules.php?module=sirportly&action=support">
+         <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">';
+         while ($department = mysql_fetch_array($whmcs_departments, MYSQL_ASSOC)) {
+           echo '<tr><td width="20%" class="fieldlabel">'.$department['name'].' </td><td class="fieldarea"><select name="departments['.$department['id'].']">';
+           foreach ($sirportly_departments as $key => $value) {
+             echo '<option value="'.$value['id'].'">'.$value['brand']['name'].' - '.$value['name'].'</option>';
+           }  
+         }
+         
+         echo '</table><h2>Priorities</h2>
+<p>Please map your current list of administrators to those that exist within Sirportly.</p>
+ <form method="POST" action="addonmodules.php?module=sirportly&action=support">
+ <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">';
+
+ foreach ($whmcs_priorities as $key => $value) {
+   echo '<tr><td width="20%" class="fieldlabel">'.$value.' </td><td class="fieldarea"><select name="priorities['.$value.']">';
+   foreach ($sirportly_priorities as $key => $value) {
+     echo '<option value="'.$value['id'].'">'.$value['name'].'</option>';
+   }  
+ }
+ 
+   echo '</table><h2>Statuses</h2>
+     <p>Please map your current list of administrators to those that exist within Sirportly.</p>
+     <form method="POST" action="addonmodules.php?module=sirportly&action=support">
+     <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">';
+   while ($status = mysql_fetch_array($whmcs_statuses, MYSQL_ASSOC)) {
+     echo '<tr><td width="20%" class="fieldlabel">'.$status['title'].' </td><td class="fieldarea"><select name="statuses['.$status['title'].']">';
+     foreach ($sirportly_statuses as $key => $value) {
+       echo '<option value="'.$value['id'].'">'.$value['name'].'</option>';
+     }  
+   }
+   
+    echo '</table><h2>Custom Fields</h2>
+      <p>Please map your current list of administrators to those that exist within Sirportly.</p>
+      <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">';
+      
+    while ($field = mysql_fetch_array($whmcs_customfields, MYSQL_ASSOC)) {
+      echo '<tr><td width="20%" class="fieldlabel">'.$field['fieldname'].' </td><td class="fieldarea"><input type="text" name="customfields['.$field['fieldname'].']">';
+      
+    }
+             
+      
+      echo '</table><p align="center"><input type="submit" value="Start Import" /></p></form>';
+      
+      break;
     
     case 'support':
      if (!$vars['token'] || !$vars['secret']) {
@@ -93,7 +300,7 @@ function sirportly_output($vars)
       update_query('tbladdonmodules',array('value' => $_POST['closed_status']), array('module'=>'sirportly', 'setting' => 'closed_status'));
     }
      
-    $sirportly_settings = sirportly_settings();
+    
     $brands = sirportly_brands($vars['token'],$vars['secret']);
     $status = sirportly_status($vars['token'],$vars['secret']);
     $priority = sirportly_priorities($vars['token'],$vars['secret']);
