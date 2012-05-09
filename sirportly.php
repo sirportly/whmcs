@@ -140,7 +140,6 @@ function sirportly_output($vars)
               }              
             }
           
-        
           # fetch ticket replies
           $replies = select_query('tblticketreplies', '', array('tid' => $ticket['id']));
           while ($reply = mysql_fetch_array($replies, MYSQL_ASSOC)) {
@@ -175,23 +174,11 @@ function sirportly_output($vars)
               }              
             }
             
-          
-            
-            
             # reset updated_at field to last reply time
-            sirportly_admin('/api/v1/tickets/update',$vars['token'],$vars['secret'],array('ticket' => $sirportly_ticket['reference'], 'updated_at' => $reply['date']));
-            
+            sirportly_admin('/api/v1/tickets/update',$vars['token'],$vars['secret'],array('ticket' => $sirportly_ticket['reference'], 'updated_at' => $reply['date'])); 
           }
           
-      
-          
-        
-      
-        
-          
-          
-         
-          
+          session_destroy();
           
           # set the timeout to 60 again
           set_time_limit(60);
