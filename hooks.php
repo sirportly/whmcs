@@ -275,8 +275,8 @@ Knowledgebase hooks
 */
 
 function knowledgebase_page($vars){
-  if (basename($vars['SCRIPT_NAME']) == 'knowledgebase.php' && sirportly_enabled()) {
-    $sirportly_settings = sirportly_settings();
+  $sirportly_settings = sirportly_settings();
+  if (basename($vars['SCRIPT_NAME']) == 'knowledgebase.php' && sirportly_enabled() && $sirportly_settings['kb']) {
     global $CONFIG;
    
     $kb_page = sirportly_api('/api/v1/knowledge/page',$sirportly_settings['token'],$sirportly_settings['secret'],array('kb' => $sirportly_settings['kb'], 'path' => $_GET['page']));
@@ -295,10 +295,11 @@ function knowledgebase_page($vars){
 
 
 function knowledgebase_menu($vars){
-  if (basename($vars['SCRIPT_NAME']) == 'knowledgebase.php' && sirportly_enabled()) {
+  $sirportly_settings = sirportly_settings();
+  if (basename($vars['SCRIPT_NAME']) == 'knowledgebase.php' && sirportly_enabled() && $sirportly_settings['kb']) {
     global $CONFIG, $smarty;
   
-    $sirportly_settings = sirportly_settings();
+    
     $pages = sirportly_api('/api/v1/knowledge/tree',$sirportly_settings['token'],$sirportly_settings['secret'],array('kb' => $sirportly_settings['kb']));
   
   
