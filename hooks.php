@@ -1,5 +1,7 @@
 <?PHP
 require_once('sirportly_functions.php');
+require_once('markdown.php');
+
 
 function sirportly_redirect_if_enabled()
 {
@@ -267,6 +269,92 @@ function sirportly_close_ticket(){
       sirportly_api('/api/v1/tickets/update',$sirportly_settings['token'],$sirportly_settings['secret'],array('ticket' => $_GET['tid'],'status' => $sirportly_settings['closed_status']));
   }
 }
+
+/*
+Knowledgebase hooks
+*/
+
+function knowledgebase_page($vars){
+  if (basename($vars['SCRIPT_NAME']) == 'knowledgebase.php' && sirportly_enabled()) {
+    $sirportly_settings = sirportly_settings();
+    global $CONFIG;
+   
+    $kb_page = sirportly_api('/api/v1/knowledge/page',$sirportly_settings['token'],$sirportly_settings['secret'],array('kb' => $sirportly_settings['kb'], 'path' => $_GET['page']));
+     global $smarty;
+    
+    $template = $smarty->get_template_vars('template');
+    $smarty->assign('page', Markdown($kb_page['page']['content']));
+   
+    $smarty->display($template.'/header.tpl');
+    $smarty->display('../modules/addons/sirportly/templates/knowledgebase.tpl');
+    $smarty->display($template.'/footer.tpl');
+    exit;
+    
+  }
+}
+
+
+function knowledgebase_menu($vars){
+  if (basename($vars['SCRIPT_NAME']) == 'knowledgebase.php' && sirportly_enabled()) {
+    global $CONFIG, $smarty;
+  
+    $sirportly_settings = sirportly_settings();
+    $pages = sirportly_api('/api/v1/knowledge/tree',$sirportly_settings['token'],$sirportly_settings['secret'],array('kb' => $sirportly_settings['kb']));
+  
+  
+  #treeview
+  $html .= '<ul id="browser" class="filetree">';
+    foreach ($pages as $root_key => $root_value) {
+      if (empty($root_value['children'])) {
+        $html .= '<li><span class="file"><a href="knowledgebase.php">'.$root_value['title'].'</a></span></li>';
+      } else {
+        $html .= '<ul><li><span class="folder"><a href="knowledgebase.php">'.$root_value['title'].'</a></span><ul>';
+        foreach ($root_value['children'] as $first_key => $first_value) {
+          if (empty($first_value['children'])) {
+            $html .= '<li><span class="file"><a href="knowledgebase.php?page='.$first_value['permalink'].'">'.$first_value['title'].'</a></span></li>';
+          } else {
+            $html .= '<ul><li><span class="folder"><a href="knowledgebase.php?page='.$first_value['permalink'].'">'.$first_value['title'].'</a></span><ul>';
+            foreach ($first_value['children'] as $second_key => $second_value) {
+              if (empty($second_value['children'])) {
+                $html .= '<li><span class="file"><a href="knowledgebase.php?page='.$first_value['permalink'].'/'.$second_value['permalink'].'">'.$second_value['title'].'</a></span></li>';
+              } else {
+                $html .= '<ul><li><span class="folder"><a href="knowledgebase.php?page='.$first_value['permalink'].'/'.$second_value['permalink'].'">'.$second_value['title'].'</a></span><ul>';
+                foreach ($second_value['children'] as $third_key => $third_value) {
+                  if (empty($third_value['children'])) {
+                    $html .= '<li><span class="file"><a href="knowledgebase.php?page='.$first_value['permalink'].'/'.$second_value['permalink'].'/'.$third_value['permalink'].'">'.$third_value['title'].'</a></span></li>';
+                  } else {
+                    $html .= '<ul><li><span class="folder"><a href="knowledgebase.php?page='.$first_value['permalink'].'/'.$second_value['permalink'].'/'.$third_value['permalink'].'">'.$third_value['title'].'</a></span><ul>';
+                    foreach ($third_value['children'] as $fourth_key => $fourth_value) {
+                      if (empty($fourth_value['children'])) {
+                        $html .= '<li><span class="file"><a href="knowledgebase.php?page='.$first_value['permalink'].'/'.$second_value['permalink'].'/'.$third_value['permalink'].'/'.$fourth_value['permalink'].'">'.$fourth_value['title'].'</a></span></li>';
+                      }      
+                    }
+                    $html .= '</li></ul>';
+                  }      
+                }
+                $html .= '</li></ul>';
+              }      
+            }
+            $html .= '</li></ul>'; 
+          }      
+        }
+        $html .= '</li></ul>';
+      }      
+    }
+    $smarty->assign_by_ref('menu', $html);
+  }
+}
+
+
+add_hook("ClientAreaHeadOutput",121,"knowledgebase_page");
+add_hook("ClientAreaHeadOutput",120,"knowledgebase_menu");
+
+
+
+
+
+
+
 add_hook("ClientEdit",111,"update_sirportly_email");
 
 add_hook("ClientAreaPage",112,"sirportly_close_ticket");

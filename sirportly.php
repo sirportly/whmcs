@@ -15,6 +15,7 @@ function sirportly_config() {
         "token" => array ("FriendlyName" => "API Token", "Type" => "text", "Size" => "50", "Description" => "API token can be generated within the Sirportly interface."),
         "secret" => array ("FriendlyName" => "API Secret", "Type" => "text", "Size" => "50"),
         "ssl" => array ("FriendlyName" => "Use SSL?", "Type" => "yesno", "Size" => "50", "Description" => "Connect to API via SSL?"),
+        "kb" => array ("FriendlyName" => "Knowledge Base ID", "Type" => "text", "Size" => "50", "Default" => "", "Description" => "ID of the Knowledge Base"),
       )
     );
     return $configarray;
