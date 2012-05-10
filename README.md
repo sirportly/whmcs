@@ -55,3 +55,6 @@ Once all three options are saved all support tickets will be added to Sirportly,
 `SSO URL` This is the URL to your WHMCS installation and the following /modules/addons/sirportly/sso.php
 
 The rest of the fields are optional
+
+## Knowledge base Integration
+To show a Sirportly knowledge base instead of the built-in version you need to navigate to the WHMCS admin area, Setup > Addon Modules and enter the ID of a knowledge base from within Sirportly in to the field `Knowledge Base ID`
