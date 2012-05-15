@@ -275,20 +275,17 @@ function sirportly_output($vars)
       return;
     }
     
-    $sirportly_settings = sirportly_settings();
-    $brands = sirportly_brands($vars['token'],$vars['secret']);
-    $status = sirportly_status($vars['token'],$vars['secret']);
-    $priority = sirportly_priorities($vars['token'],$vars['secret']);
-       
+           
     if ($_POST){
       update_query('tbladdonmodules',array('value' => $_POST['brand']), array('module'=>'sirportly', 'setting' => 'brand'));
       update_query('tbladdonmodules',array('value' => $_POST['status']), array('module'=>'sirportly', 'setting' => 'status'));
       update_query('tbladdonmodules',array('value' => $_POST['priority']), array('module'=>'sirportly', 'setting' => 'priority'));
       update_query('tbladdonmodules',array('value' => $_POST['close_ticket']), array('module'=>'sirportly', 'setting' => 'close_ticket'));
       update_query('tbladdonmodules',array('value' => $_POST['closed_status']), array('module'=>'sirportly', 'setting' => 'closed_status'));
+      echo '<div class="successbox"><strong>Success!</strong><br />Changes saved successfully.</div>';
     }
      
-    
+    $sirportly_settings = sirportly_settings();
     $brands = sirportly_brands($vars['token'],$vars['secret']);
     $status = sirportly_status($vars['token'],$vars['secret']);
     $priority = sirportly_priorities($vars['token'],$vars['secret']);
