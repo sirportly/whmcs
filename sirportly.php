@@ -79,10 +79,10 @@ function sirportly_output($vars)
       # can only continue if token & secret has been set
       if (!$vars['token'] || !$vars['secret']) { echo '<div class="errorbox"><strong>An Error Occured!</strong><br />Please enter your API Token and/or Secret.</div>'; return; }
       
-      
+      foreach ($_POST as $key => $value) { $_SESSION[$key] = $value; }
       # lets start the import
       if ($_SESSION['administrators']) {
-        foreach ($_POST as $key => $value) { $_SESSION[$key] = $value; }
+        
         
         # fetch list of tickets
         $tickets = select_query('tbltickets');
