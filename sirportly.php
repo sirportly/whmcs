@@ -179,13 +179,13 @@ function sirportly_output($vars)
             sirportly_admin('/api/v1/tickets/update',$vars['token'],$vars['secret'],array('ticket' => $sirportly_ticket['reference'], 'updated_at' => $reply['date'])); 
           }
           
-          session_destroy();
+          
           
           # set the timeout to 60 again
           set_time_limit(60);
         }
         
-        
+        session_destroy();
       
         
        
