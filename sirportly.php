@@ -176,7 +176,7 @@ function sirportly_output($vars)
             }
             
             # reset updated_at field to last reply time
-            sirportly_admin('/api/v1/tickets/update',$vars['token'],$vars['secret'],array('ticket' => $sirportly_ticket['reference'], 'updated_at' => $reply['date'])); 
+            sirportly_admin('/api/v1/tickets/update',$vars['token'],$vars['secret'],array('ticket' => $sirportly_ticket['reference'], 'updated_at' => $reply['date'], 'status' => $_SESSION['statuses'][$ticket['status']])); 
           }
           
           
