@@ -247,8 +247,8 @@ function sirportly_link_accounts(){
 
 # when a client updates the email in WHMCS update Sirportly
 function update_sirportly_email($vars){	
-	if ( sirportly_enabled() && $_SESSION['uid'] ) {		
-		$sirportly_customer = select_query('sirportly_customers', '', array('userid' => $_SESSION['uid']));
+	if ( sirportly_enabled() ) {		
+		$sirportly_customer = select_query('sirportly_customers', '', array('userid' => $vars['userid']));
 		if (mysql_num_rows($sirportly_customer)) {
 			$sirportly_customer = mysql_fetch_array($sirportly_customer, MYSQL_ASSOC);
 			$sirportly_settings = sirportly_settings();
@@ -259,7 +259,6 @@ function update_sirportly_email($vars){
 		}
 	}	
 }
-
 
 function sirportly_close_ticket(){
   $sirportly_settings = sirportly_settings();
