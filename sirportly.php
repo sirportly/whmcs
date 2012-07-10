@@ -8,7 +8,7 @@ function sirportly_config() {
     $configarray = array(
     "name" => "Sirportly",
     "description" => "",
-    "version" => "1.1",
+    "version" => "1.1.1",
     "author" => "aTech Media",
       "fields" => array(
         "url" => array ("FriendlyName" => "API URL", "Type" => "text", "Size" => "50", "Default" => "api.sirportly.com", "Description" => "Without a trailing /"),
