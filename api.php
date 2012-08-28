@@ -21,6 +21,8 @@ if ( mysql_num_rows($admin) ) {
 	die;
 }
 
+logActivity("Datasource requested for ".$_REQUEST['type']." ".$_REQUEST['data']);
+
 // get cliend details from db
 $client = select_query('tblclients', '', array('email' => $_REQUEST['data']));
 
@@ -37,6 +39,8 @@ $result = mysql_query("SELECT * FROM `sirportly`");
 while ($row = mysql_fetch_array($result, MYSQL_NUM)) {
   $current_fields[$row['1']][$row[2]] = $row['2'];
 }
+
+
 
 // prepare return
 global $CONFIG;

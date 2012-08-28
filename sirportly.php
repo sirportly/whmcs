@@ -11,11 +11,12 @@ function sirportly_config() {
     "version" => "1.1.1",
     "author" => "aTech Media",
       "fields" => array(
-        "url" => array ("FriendlyName" => "API URL", "Type" => "text", "Size" => "50", "Default" => "api.sirportly.com", "Description" => "Without a trailing /"),
-        "token" => array ("FriendlyName" => "API Token", "Type" => "text", "Size" => "50", "Description" => "API token can be generated within the Sirportly interface."),
-        "secret" => array ("FriendlyName" => "API Secret", "Type" => "text", "Size" => "50"),
-        "ssl" => array ("FriendlyName" => "Use SSL?", "Type" => "yesno", "Size" => "50", "Description" => "Connect to API via SSL?"),
-        "kb" => array ("FriendlyName" => "Knowledge Base ID", "Type" => "text", "Size" => "50", "Default" => "", "Description" => "ID of the Knowledge Base"),
+        "url"     => array ("FriendlyName" => "API URL", "Type" => "text", "Size" => "50", "Default" => "api.sirportly.com", "Description" => "Without a trailing /"),
+        "token"   => array ("FriendlyName" => "API Token", "Type" => "text", "Size" => "50", "Description" => "API token can be generated within the Sirportly interface."),
+        "secret"  => array ("FriendlyName" => "API Secret", "Type" => "text", "Size" => "50"),
+        "ssl"     => array ("FriendlyName" => "Use SSL?", "Type" => "yesno", "Size" => "50", "Description" => "Connect to API via SSL?"),
+        "kb"      => array ("FriendlyName" => "Knowledge Base ID", "Type" => "text", "Size" => "50", "Default" => "", "Description" => "ID of the Knowledge Base"),
+        "frame_key" => array ("FriendlyName" => "Frame Key", "Type" => "password", "Size" => "50", "Default" => "", "Description" => "Frame Key"),
       )
     );
     return $configarray;
@@ -40,6 +41,10 @@ function sirportly_activate() {
   mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'brand', '0');");
   mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'status', '0');");
   mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'priority', '0');");
+  
+  ## v1.1
+  mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'close_ticket', '0');");
+  mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'closed_status', '0');");
   
   return array('status'=>'success');
 }

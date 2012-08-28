@@ -1,0 +1,952 @@
+/* --------------------------------------------------------------
+   GLOBAL
+-------------------------------------------------------------- */
+*{
+    list-style:none;
+}
+body {
+	background-color: #efefef;
+	margin: 0;
+}
+body, td, th, div, input, select, textarea {
+	font-family: Tahoma, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+form {
+	margin: 0;
+	padding: 0;
+}
+a, a:visited {
+	color: #202F60;
+	text-decoration: underline;
+}
+a:hover {
+	text-decoration: none;
+}
+a img {
+	border: 0;
+}
+a.highlight, a.highlight:visited, a.highlight:hover {
+	color: #CC0000;
+}
+h1 {
+	color: #666;
+	font-size: 20px;
+	font-weight: normal;
+	margin: 0 0 20px 0;
+}
+h2 {
+	color: #000;
+	font-size: 16px;
+	font-weight: normal;
+	margin: 10px 0 15px 0;
+}
+h3 {
+    font-size: 14px;
+    font-weight: normal;
+    color: #666;
+	margin: 0 0 20px 0;
+}
+
+input {
+    padding: 2px;
+}
+select {
+    border: 1px solid #ccc;
+    padding: 2px;
+}
+
+.left {
+    float: left;
+}
+.right {
+    float: right;
+}
+
+.topbar {
+    padding: 0 15px;
+	min-width:1050px;
+    background-color: #000;
+    height: 30px;
+    line-height: 30px;
+    color: #fff;
+}
+.topbar a {
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+}
+.topbar a:hover {
+    text-decoration: underline;
+}
+.footerbar {
+    padding: 0 15px;
+	min-width:1050px;
+    background-color: #408CD9;
+    color: #fff;
+    height: 30px;
+    line-height: 30px;
+}
+.footerbar a {
+    color: #fff;
+}
+
+.header {
+    margin: 0;
+    padding: 5px 0 0 0;
+	min-width:1080px;
+    height: 50px;
+    background-color: #1A4D80;
+    text-align: left;
+    border: 0;
+}
+.header .logo {
+    position: absolute;
+    top: 35px;
+    left: 25px;
+    padding: 0;
+    margin: 0;
+}
+.header .stats {
+    float: left;
+    width: 780px;
+    text-align: center;
+    color: #fff;
+    font-size: 11px;
+    padding: 15px 0 0 260px;
+    margin: 0;
+}
+.header .stats a {
+    text-decoration: none;
+    color: #fff;
+}
+.header .stats a:hover {
+    text-decoration: underline;
+}
+.header .stats .stat {
+    font-weight: bold;
+    color: #ffcc00;
+}
+
+.navbar {
+    padding: 5px 30px 6px 30px;
+	min-width:1020px;
+    text-align: left;
+    background-color: #fff;
+}
+
+.contentarea {
+    margin: 20px 15px;
+    padding: 15px;
+	min-width: 1020px;
+    min-height: 300px;
+    background-color: #fff;
+    border: 4px solid #E2E7E9;
+}
+
+#greyout {
+    display: none;
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background-color: #ccc;
+    filter:alpha(opacity=60);
+    -moz-opacity:0.6;
+    -khtml-opacity: 0.6;
+    opacity: 0.6;
+    z-index: 8;
+}
+
+#popupcontainer {
+    display: none;
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    text-align:center;
+    padding-top: 150px;
+    z-index: 10;
+}
+
+#mynotes {
+    display: none;
+    width: 500px;
+    margin: 0 auto 0 auto;
+    padding: 0;
+    border: 15px solid #fff;
+    background-color: #fff;
+    text-align: center;
+}
+#mynotesbox {
+    width: 460px;
+    height: 300px;
+    border: 10px solid #E2E7E9;
+    padding: 10px;
+    margin: 15px 0 15px 0;
+}
+
+.homebox {
+    margin: 0 0 15px 0;
+    padding: 5px;
+    background-color: #fff;
+    border: 2px solid #E2E7E9;
+}
+
+.contextbar {
+    margin: 0;
+    padding: 10px;
+    background-color:#666;
+    font-size: 14px;
+    color: #fff;
+    text-align: center;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -o-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.contexthelp {
+    float: right;
+    margin: 0;
+    padding: 5px 20px;
+    border: 1px solid #FBEB20;
+    background-color: #FFFFD5;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -o-border-radius: 5px;
+    border-radius: 5px;
+}
+.contexthelp a {
+    color: #000;
+}
+
+/* --------------------------------------------------------------
+   INTELLIGENT SEARCH
+-------------------------------------------------------------- */
+
+.intellisearch {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 48px 20px;
+}
+#searchresults {
+    display: none;
+    width: 550px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 15px solid #fff;
+    background-color: #fff;
+    text-align: center;
+    z-index: 10;
+}
+#searchresultsscroller {
+    height: 400px;
+    border: 10px solid #E2E7E9;
+    margin: 15px 0 15px 0;
+    padding: 5px;
+    overflow: auto;
+    text-align: left;
+}
+#searchresults .searchresultheader {
+    font-size: 16px;
+    padding:2px;
+}
+#searchresults .searchresult {
+    border: 1px solid #ccc;
+    padding: 2px 5px 2px 5px;
+    margin: 5px;
+}
+#searchresults .searchresult .label {
+    float: left;
+    margin: 7px 15px 0 10px;
+}
+#searchresults .searchresult .desc {
+    color: #888;
+}
+#searchresults .searchresult:hover {
+    background-color: #FFFFD9;
+}
+#searchresults .searchresult a {
+    text-decoration: none;
+    display: block;
+}
+
+#clientsearchresults {
+    background-color: #fff;
+	border: 1px solid #ccc;
+	padding: 3px;
+	margin: 0;
+	white-space: nowrap;
+    font-size: 11px;
+    font-family: Tahoma;
+}
+#ticketclientsearchresults {
+    position: absolute;
+    width: 300px;
+    background-color: #fff;
+	border: 1px solid #ccc;
+	padding: 3px;
+	margin: 0 10px 0 0;
+	display: none;
+	white-space: nowrap;
+    font-size: 11px;
+    font-family: Tahoma;
+}
+#clientsearchresults .searchresultheader, #ticketclientsearchresults .searchresultheader {
+    background-color:#ccc;
+    padding:2px;
+    font-weight:bold;
+    text-align:center;
+}
+#clientsearchresults .searchresult, #ticketclientsearchresults .searchresult {
+    background-color:#f4f4f4;
+    border-top: 3px solid #fff;
+    padding: 2px 0 2px 5px;
+}
+#clientsearchresults .searchresult .desc, #ticketclientsearchresults .searchresult .desc {
+    color: #888;
+}
+#clientsearchresults .searchresult:hover, #ticketclientsearchresults .searchresult:hover {
+    background-color: #fff;
+}
+#clientsearchresults .searchresult a, #ticketclientsearchresults .searchresult a {
+    text-decoration: none;
+    display: block;
+}
+#clientsearchcancel {
+    display: none;
+}
+
+/* --------------------------------------------------------------
+   NAVIGATION
+-------------------------------------------------------------- */
+
+.navigation {
+    padding:0px;
+    margin:0px;
+	min-width:1080px;
+    height:35px;
+    background-color: #1A4D80;
+}
+.navigation ul {
+    padding: 0 0 0 275px;
+    margin: 0;
+    border: 0;
+    min-width: 765px;
+    float:left;
+    position:relative;
+    text-align:center;
+}
+.navigation ul li {
+    background-color:#2162A3;
+    padding:0;
+    margin:0 0 0 5px;
+    height:34px;
+    width:80px;
+    line-height:34px;
+    text-align:center;
+    float:left;
+    position:relative;
+    cursor: hand;
+    cursor: pointer;
+    text-decoration:none;
+    -moz-border-radius: 5px 5px 0 0;
+    -webkit-border-radius: 5px 5px 0 0;
+    -o-border-radius: 5px 5px 0 0;
+    border-radius: 5px 5px 0 0;
+}
+.navigation ul li:hover {
+    background-color:#E9F0FE;
+    text-decoration:none;
+}
+.navigation ul li a:hover {
+    display:block;
+}
+.navigation ul li a {
+    color:#FFF;
+    text-decoration:none;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: Tahoma;
+}
+.navigation ul li ul {
+    position:absolute;
+    display:none;
+    padding: 0;
+    margin: 0;
+    float:none;
+    width:170px;
+    min-width:0;
+    background-color:#2162A3;
+    border:5px solid #2162A3;
+    z-index: 100;
+    -moz-border-radius: 0 0 5px 5px;
+    -webkit-border-radius: 0 0 5px 5px;
+    -o-border-radius: 0 0 5px 5px;
+    border-radius: 0 0 5px 5px;
+}
+.navigation ul li:hover ul, .navigation ul li:hover ul li:hover ul {
+    position:relative;
+    display:block;
+    float:none;
+}
+.navigation ul li ul li {
+    /* ie7 fix for menu item height */
+    font-size:0;
+    line-height:0;
+    /* ie7 fix for menu item height */
+    padding: 0;
+    margin: -1px 0 0 0;
+    width:170px;
+    height:20px;
+    text-decoration:none;
+    font-weight: normal;
+    text-align:left;
+    display:block;
+    float:none;
+    background-color:#2162A3;
+    border-top:1px solid #fff;
+    border-bottom:1px solid #fff;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    -o-border-radius: 0;
+    border-radius: 0;
+}
+.navigation ul li ul li.expand {
+    background-image:url('../../images/menuexpand.png');
+    background-repeat:no-repeat;
+    background-position:155px 6px;
+}
+.navigation ul li:hover ul li ul {
+    display:none;
+}
+.navigation ul li ul li a, .navigation ul li:hover ul li a, .navigation ul li ul li:hover ul li a {
+    margin: 0;
+    padding: 0 0 0 10px;
+    font-family:Tahoma;
+    font-size:11px;
+    line-height:20px;
+    font-weight:normal;
+    text-decoration:none;
+    color:#fff;
+    display:block;
+}
+.navigation ul li ul li ul {
+    display:none;
+    margin: -25px 0 0 170px;
+    -moz-border-radius: 0 5px 5px 5px;
+    -webkit-border-radius: 0 5px 5px 5px;
+    -o-border-radius: 0 5px 5px 5px;
+    border-radius: 0 5px 5px 5px;
+}
+.navigation ul li:hover a, .navigation ul li ul li:hover a, .navigation ul li ul li:hover ul li:hover a {
+    color:#000;
+}
+
+/* --------------------------------------------------------------
+   TABS
+-------------------------------------------------------------- */
+
+#tabs ul, #clienttabs ul {
+	display: block;
+	background-color: #fff;
+	height: 23px;
+	line-height: 22px;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	font-size: 13px;
+    border-bottom: 1px solid #CCCCCC;
+}
+#tabs ul li, #clienttabs ul li {
+	float: left;
+	padding: 0;
+	margin: 0 0 0 5px;
+}
+#tabs ul li a, #tabs ul li a:visited, #clienttabs ul li a, #clienttabs ul li a:visited {
+	display: block;
+	background-color: #efefef;
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+	padding: 0 10px;
+	margin: 0;
+	color: #000;
+	text-decoration: none;
+    -moz-border-radius: 4px 4px 0 0;
+    -webkit-border-radius: 4px 4px 0 0;
+    -o-border-radius: 4px 4px 0 0;
+    border-radius: 4px 4px 0 0;
+}
+#tabs ul li a:hover, #clienttabs ul li a:hover {
+	background-color: #EDF1F8;
+	color: #000;
+	text-decoration: underline;
+}
+#tabs ul li.tabselected a, #tabs ul li.tabselected a:visited, #tabs ul li.tabselected a:hover, #clienttabs ul li.tabselected a, #clienttabs ul li.tabselected a:visited, #clienttabs ul li.tabselected a:hover {
+	background-color: #fff;
+    border: 1px solid #ccc;
+    border-bottom: 1px solid #fff;
+    color: #000;
+	font-weight: bold;
+}
+#tab_content {
+	background-color: #fff;
+	text-align: left;
+	margin: 0px;
+	padding: 10px;
+	border: 1px solid #CCC;
+    border-top: 0;
+    text-align: center;
+}
+
+/* --------------------------------------------------------------
+   TABLES
+-------------------------------------------------------------- */
+
+table.form {
+	background-color: #fff;
+	padding: 0px;
+	border: 3px solid #E2E7E9;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -o-border-radius: 4px;
+    border-radius: 4px;
+}
+table.form td {
+	font-size: 12px;
+}
+table.form td.fieldlabel {
+	background-color: #fff;
+    text-align: right;
+}
+table.form td.fieldarea {
+	background-color: #efefef;
+    text-align: left;
+}
+table.datatable {
+	padding: 0;
+	margin: 0;
+}
+table.datatable th {
+	background-color: #1A4D80;
+	font-weight: bold;
+	text-align: center;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+}
+table.datatable td {
+	background-color: #FFF;
+	border-bottom: 1px solid #EBEBEB;
+	font-size: 12px;
+}
+table.datatable tr.rowhighlight td {
+	background-color: #E0E8F3;
+}
+table.datatable tr:hover td {
+	background-color: #EFF2F9;
+}
+table.datatable th, table.datatable th a, table.datatable th a:visited {
+	color: #FFF;
+	text-decoration: none;
+}
+table.datatable th a:hover {
+	color: #FFF;
+	text-decoration: underline;
+}
+table.datatable tr:hover td {
+	background-color: #F3F3F3;
+}
+
+/* --------------------------------------------------------------
+   SPECIAL CLASSES
+-------------------------------------------------------------- */
+
+.absmiddle {
+	vertical-align: middle;
+}
+.clear {
+	clear: both;
+}
+.smallfont {
+	font-size: 10px;
+}
+
+/* --------------------------------------------------------------
+   INFO BOXES
+-------------------------------------------------------------- */
+
+.infobox {
+	background-image: url('../../images/info.png');
+	background-repeat: no-repeat;
+	background-position: 5px;
+	margin: 10px 5px 10px 5px;
+	padding: 6px 5px 6px 45px;
+    min-height: 28px;
+	background-color: #FCF9D2;
+	border: 1px solid #F9D43E;
+    color: #000;
+    text-align: left;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -o-border-radius: 5px;
+    border-radius: 5px;
+}
+.successbox {
+	background-image: url('../../images/success.png');
+	background-repeat: no-repeat;
+	background-position: 5px;
+	margin: 10px 5px 10px 5px;
+	padding: 6px 5px 6px 45px;
+    min-height: 28px;
+	background-color: #D7ECB8;
+	border: 1px solid #93C44A;
+    color: #000;
+    text-align: left;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -o-border-radius: 5px;
+    border-radius: 5px;
+}
+.errorbox {
+	background-image: url('../../images/error.png');
+	background-repeat: no-repeat;
+	background-position: 5px;
+	margin: 10px 5px 10px 5px;
+	padding: 6px 5px 6px 45px;
+    min-height: 28px;
+	background-color: #FFF3F3;
+	border: 1px solid #FFBBBB;
+    color: #cc0000;
+    text-align: left;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -o-border-radius: 5px;
+    border-radius: 5px;
+}
+.contentbox {
+	text-align: center;
+	background-color: #f7f7f7;
+	border: 1px dashed #cccccc;
+	padding: 10px;
+}
+.invoicetooltip {
+	border: 1px solid #F0EADE;
+    background-color: #F3F4EC;
+	color: #000000;
+	padding: 5px;
+	z-index: 100;
+}
+
+/* --------------------------------------------------------------
+   TEXT COLORS
+-------------------------------------------------------------- */
+
+.textblack {
+	color: #000000;
+}
+
+.textblue {
+    color: #224488;
+}
+
+.textgreen {
+	color: #779500;
+}
+
+.textgrey {
+	color: #888888;
+}
+
+.textgold {
+    color: #ffbb55;
+}
+
+.textorange {
+	color: #ff6600;
+}
+
+.textred {
+	color: #cc0000;
+}
+
+/* --------------------------------------------------------------
+   STATUS LABELS
+-------------------------------------------------------------- */
+
+.label {
+    padding: 1px 3px 2px;
+    background-color: #BFBFBF;
+    font-size: 10px;
+    font-weight: normal;
+    color: white;
+    text-transform: uppercase;
+    white-space: nowrap;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+.label.pending, .label.collections {
+    background-color: #F89406;
+}
+.label.active, .label.paid {
+    background-color: #46A546;
+}
+.label.suspended, .label.expired, .label.refunded {
+    background-color: #0768B8;
+}
+.label.terminated, .label.closed, .label.unpaid {
+    background-color: #C43C35;
+}
+.label.cancelled {
+    background-color: #BFBFBF;
+}
+.label.fraud {
+    background-color: #000;
+}
+
+/* --------------------------------------------------------------
+   DATE PICKER
+-------------------------------------------------------------- */
+
+.datepick {
+    width: 75px;
+}
+.datepick + img {
+    position: relative;
+    left: 5px;
+    top: 1px;
+}
+
+/* --------------------------------------------------------------
+   ADMIN HOMEPAGE
+-------------------------------------------------------------- */
+
+.homecolumn {
+    float: left;
+    width: 50%;
+    padding-bottom: 100px;
+}
+
+.homewidget {
+    margin: 10px;
+    border: 1px solid #ccc;
+    padding:2px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -o-border-radius: 4px;
+    border-radius: 4px;
+}
+
+.widget-header {
+    padding:5px;
+    background-color:#efefef;
+    font-weight:bold;
+}
+
+.widget-header .ui-icon {
+    float: right;
+}
+
+.widget-content {
+    padding: 5px;
+    overflow: auto;
+}
+
+.widget-content .label {
+    padding-right: 5px;
+    text-align: right;
+}
+
+.ui-sortable-placeholder {
+    border: 1px dotted black;
+    visibility: visible !important;
+    height: 50px !important;
+}
+
+.ui-sortable-placeholder * {
+    visibility: hidden;
+}
+
+/* --------------------------------------------------------------
+   CLIENT SUMMARY PAGE
+-------------------------------------------------------------- */
+
+.clientssummarybox {
+    background-color: #EEEEEE;
+    padding: 10px;
+    margin: 10px 2px 5px 3px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -o-border-radius: 5px;
+    border-radius: 5px;
+}
+.clientssummarybox .title {
+    text-align: center;
+    padding: 0 0 10px 0;
+    font-family: Arial;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1A4D80;
+}
+.clientssummarybox ul {
+    list-style-type: none;
+    margin: 10px 0 0 0;
+}
+.clientssummarybox ul li {
+    margin: 0 0 2px -20px;
+}
+table.clientssummarystats {
+    width: 100%;
+    border: 4px solid #fff;
+}
+table.clientssummarystats td {
+    background-color: #fff;
+    font-size: 11px;
+    padding-left: 4px;
+    border-bottom: 1px dashed #ccc;
+}
+table.clientssummarystats tr.altrow td {
+    background-color: #fff;
+    padding-left: 4px;
+    border-bottom: 1px dashed #ccc;
+}
+.clientsummaryactions {
+    float:right;
+    margin: 0;
+    padding:4px 15px;
+    border:1px dashed #BEDCF3;
+    background-color:#EDF5FC;
+    font-size:14px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -o-border-radius: 4px;
+    border-radius: 4px;
+}
+
+/* --------------------------------------------------------------
+   SUPPORT TICKETS
+-------------------------------------------------------------- */
+
+.ticketstaffnotes {
+     background-color: #FFFFE6;
+     border: 1px dashed #DACD83;
+     padding: 5px;
+}
+
+.ticketstaffnotestable {
+    width: 100%;
+    border-bottom: 1px dashed #000;
+    margin-bottom: 7px;
+}
+
+.ticketflag {
+    background-color: #FFFFCC;
+}
+
+.ticketattachmentcontainer {
+    float:left;
+    padding:0 10px 10px 0;
+    margin: 0;
+    text-align:center;
+}
+
+.ticketattachmentthumb {
+    padding:10px;
+    margin:0 0 3px 0;
+    background-color:#fff;
+    border:1px solid #ccc;
+    text-decoration: none;
+}
+
+/* --------------------------------------------------------------
+   EMAIL TEMPLATES
+-------------------------------------------------------------- */
+
+.emailtplstandard {
+    float:left;
+    width:28%;
+    margin:10px;
+    padding:10px 20px 10px 20px;
+    background-color:#efefef;
+}
+
+.emailtplcustom {
+    float:left;
+    width:28%;
+    margin:10px;
+    padding:10px 20px 10px 20px;
+    background-color:#fff4d5;
+}
+
+.emailtpldisabled {
+    float:left;
+    width:28%;
+    margin:10px;
+    padding:10px 20px 10px 20px;
+    background-color:#ffe8e8;
+}
+
+/* --------------------------------------------------------------
+   ADDON MODULES DIRECTORY
+-------------------------------------------------------------- */
+
+#addonscats {
+    background-color:#fff;
+    float:left;
+    width:200px;
+    padding:10px 0 0 0;
+}
+#addonscats .cat {
+    padding:5px 10px 5px 10px;
+    margin:5px 0 5px 0;
+    border:2px solid #7EAADA;
+    border-right:0;
+    text-align:right;
+    text-decoration: underline;
+    cursor: hand;
+    cursor: pointer;
+    -moz-border-radius-topleft: 5px;
+    -webkit-border-radius-topleft: 5px;
+    -o-border-radius-topleft: 5px;
+    border-radius-topleft: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    -webkit-border-radius-bottomleft: 5px;
+    -o-border-radius-bottomleft: 5px;
+    border-radius-bottomleft: 5px;
+}
+#addonscats .cat.addonsel {
+    background-color: #EBF2FA;
+    color: #4081C8;
+    font-weight: bold;
+}
+#addonslist {
+    border:2px solid #7EAADA;
+    padding:10px;
+    height: 500px;
+    overflow:auto;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -o-border-radius: 5px;
+    border-radius: 5px;
+}
+#addonslist .heading {
+    font-family: Arial;
+    font-size: 20px;
+    margin: 0 0 15px 20px;
+    color: #3068A7;
+}
+#addonslist .loading {
+    text-align:center;
+    font-size:16px;
+    padding:60px 0 0 0;
+}
+#searchaddons {
+    text-align: right;
+    padding: 0 20px 5px 0;
+}
