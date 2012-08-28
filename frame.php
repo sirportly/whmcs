@@ -53,6 +53,6 @@ $client_products = localAPI('getclientsproducts',array('clientid' =>$client['id'
 foreach ($client_products['products'] as $key => $value) {
  $vars['products'] = $value;
 }
-print_r($vars);
+
 initialiseClientArea();
 echo processSingleTemplate('/modules/addons/sirportly/templates/frame.tpl', $vars);
