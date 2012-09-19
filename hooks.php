@@ -126,7 +126,7 @@ function sirportly_clientarea_viewticket(){
         if (!$value['private']) {
           $replies[] = array(
             'name' => ($value['author']['name'] ? $value['author']['name'] : $value['author']['first_name'].' '.$value['author']['last_name']),
-            'message' => nl2br($value['message'].($value['signature_text'] ? "<div class='signature'><p>".$value['signature_text']."</p></div>" : "") ),
+            'message' => nl2br(($value['message'] ? $value['message'] : strip_tags($value['html_body']) ).($value['signature_text'] ? "<div class='signature'><p>".$value['signature_text']."</p></div>" : "") ),
             'admin' => ($value['author']['type'] == 'User' ? true : false),
             'date' => fromMySQLDate($value['posted_at'],'time'),
             );
