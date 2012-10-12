@@ -255,7 +255,7 @@ function update_sirportly_email($vars){
 			$customer['customer'] = $sirportly_customer['customerid'];
 			$customer['method']		= $vars['olddata']['email'];
 			$customer['data'] 		= $vars['email'];
-			sirportly_api('/api/v1/customers/edit_contact_method',$sirportly_settings['token'],$sirportly_settings['secret'],$customer);			
+			sirportly_admin('/api/v1/customers/edit_contact_method',$sirportly_settings['token'],$sirportly_settings['secret'],$customer);			
 		}
 	}	
 }

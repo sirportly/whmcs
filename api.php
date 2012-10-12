@@ -45,6 +45,7 @@ while ($row = mysql_fetch_array($result, MYSQL_NUM)) {
 // prepare return
 global $CONFIG;
 $apiresults = array();
+$decrypt = array('password', 'securityqans');
 $apiresults['contact_methods']['email'] = array($client['email']);
 
 foreach ($current_fields as $key => $value) {
@@ -54,14 +55,24 @@ foreach ($current_fields as $key => $value) {
   if (mysql_num_rows($query) == '1') {
     $result = mysql_fetch_array($query,MYSQL_ASSOC);
     foreach ($value as $row_key => $row_value) {
-      $apiresults[sirportly_lang($key)][$row_key] = $result[$row_key];
+      if ( in_array($row_key, $decrypt) ) {
+        $api = localAPI('decryptpassword', array('password2' => $result[$row_key]), $admin['id']);
+        $apiresults[sirportly_lang($key)][$row_key] =  $api['password'];
+      }else{
+        $apiresults[sirportly_lang($key)][$row_key] = $result[$row_key];
+      }
     }
   } else {
     $res = array();
     while ($result = mysql_fetch_array($query,MYSQL_ASSOC)) {
       $row = array();
       foreach ($value as $row_key => $row_value) {
-        $row[$row_key] = $result[$row_key];
+        if ( in_array($row_key, $decrypt) ) {
+          $api = localAPI('decryptpassword', array('password2' => $result[$row_key]), $admin['id']);
+          $row[$row_key] =  $api['password'];
+        }else{
+          $row[$row_key] = $result[$row_key];
+        }
       }
       array_push($res,$row);      
     }
