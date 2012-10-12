@@ -199,16 +199,16 @@ function sirportly_output($vars)
       }
       
       $whmcs_administrators = select_query('tbladmins');
-      $sirportly_administrators = sirportly_api('/api/v1/users/all',$vars['token'],$vars['secret']);
+      $sirportly_administrators = sirportly_admin('/api/v1/users/all',$vars['token'],$vars['secret']);
       
       $whmcs_departments = select_query('tblticketdepartments');
-      $sirportly_departments = sirportly_api('/api/v1/objects/departments',$vars['token'],$vars['secret']);
+      $sirportly_departments = sirportly_admin('/api/v1/objects/departments',$vars['token'],$vars['secret']);
       
       $whmcs_priorities = array('Low', 'Medium', 'High');
-      $sirportly_priorities = sirportly_api('/api/v1/objects/priorities',$vars['token'],$vars['secret']);
+      $sirportly_priorities = sirportly_admin('/api/v1/objects/priorities',$vars['token'],$vars['secret']);
       
       $whmcs_statuses = select_query('tblticketstatuses');
-      $sirportly_statuses = sirportly_api('/api/v1/objects/statuses',$vars['token'],$vars['secret']);
+      $sirportly_statuses = sirportly_admin('/api/v1/objects/statuses',$vars['token'],$vars['secret']);
       
       $whmcs_customfields = select_query('tblcustomfields', '', array('type' => 'support'));
       # administrators

@@ -9,7 +9,7 @@
 {/if}
 <p>{$numtickets} {$LANG.recordsfound}, {$LANG.page} {$pagenumber} {$LANG.pageof} {$totalpages}</p>
 
-<table class="zebra-striped">
+<table class="table table-striped table-framed table-centered">
     <thead>
         <tr>
             <th>{$LANG.supportticketsdate}</th>

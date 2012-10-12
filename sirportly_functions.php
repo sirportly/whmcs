@@ -66,7 +66,7 @@ function sirportly_admin($action,$token,$secret,$postfields=array()){
 function sirportly_brands($token,$secret){
   $brand_array = array();
   $brand_array[0] = 'Disabled';
-  $brands = sirportly_api('/api/v1/objects/brands',$token,$secret);
+  $brands = sirportly_admin('/api/v1/objects/brands',$token,$secret);
 
   foreach ($brands as $key => $value) {
     $brand_array[$value['id']] = $value['name'];
@@ -87,7 +87,7 @@ function sirportly_view_ticket($token,$secret,$reference){
 
 function sirportly_status($token,$secret){
   $status_array = array();
-  $status = sirportly_api('/api/v1/objects/statuses',$token,$secret);
+  $status = sirportly_admin('/api/v1/objects/statuses',$token,$secret);
 
   foreach ($status as $key => $value) {
     $status_array[$value['id']] = $value['name'];
@@ -104,7 +104,7 @@ function sirportly_customer_id($id){
 
 function sirportly_priorities($token,$secret){
   $priority_array = array();
-  $priority = sirportly_api('/api/v1/objects/priorities',$token,$secret);
+  $priority = sirportly_admin('/api/v1/objects/priorities',$token,$secret);
 
   foreach ($priority as $key => $value) {
     $priority_array[] = array('id' => $value['id'], 'name' => $value['name']);
