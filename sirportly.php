@@ -94,11 +94,18 @@ function sirportly_output($vars)
         while ($ticket = mysql_fetch_array($tickets, MYSQL_ASSOC)) {
           echo '<br>- Importing ticket #'.$ticket['id'].'<br>';
           # fetch client details
-          if ($ticket['userid']) {
+          $client = array();
+          if ($ticket['userid'] && !$ticket['name'] && !$ticket['email']) {
             $client = select_query('tblclients', 'firstname,lastname,email', array('id' => $ticket['userid']));
             $client = mysql_fetch_array($client,MYSQL_ASSOC);
           } else {
             $client = array('firstname' => $ticket['name'], 'lastname' => '', 'email' => $ticket['email']);
+          }
+          
+          if (empty($client)) {
+            ## we can't continue without a client so lets break
+            echo '- Unable to import ticket #'.$ticker['id'].', no client exists. <br>';
+            break; 
           }
 
          
