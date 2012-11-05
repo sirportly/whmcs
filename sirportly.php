@@ -104,7 +104,7 @@ function sirportly_output($vars)
           
           if (empty($client)) {
             ## we can't continue without a client so lets break
-            echo '- Unable to import ticket #'.$ticker['id'].', no client exists. <br>';
+            echo '- Unable to import ticket #'.$ticket['id'].', no client exists. <br>';
             break; 
           }
 
