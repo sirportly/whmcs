@@ -104,7 +104,7 @@ function sirportly_output($vars)
           
           if (empty($client)) {
             ## we can't continue without a client so lets break
-            echo '- Unable to import ticket #'.$ticket['id'].', no client exists. <br>';
+            echo '<font colour="red">- Unable to import ticket #'.$ticket['id'].', no client exists. </font><br>';
             break; 
           }
 
@@ -197,7 +197,7 @@ function sirportly_output($vars)
           set_time_limit(60);
         }
         
-        $_SESSION['administrators'] = NULL;
+        unset($_SESSION['administrators']);
       
         continue;
       }
