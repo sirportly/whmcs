@@ -197,7 +197,7 @@ function sirportly_output($vars)
           set_time_limit(60);
         }
         
-        session_destroy();
+        session_destroy($whmcs_administrators);
       
         
        
