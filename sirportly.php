@@ -71,6 +71,55 @@ function sirportly_deactivate() {
   return array('status'=>'success');
 }
 
+function curl($action, $vars, $payload)
+{
+  $url = ($vars['ssl'] == 'on' ? 'https://' : 'http://').$vars['url'];  
+  $curl = curl_init();	
+
+	$header = array('X-Auth-Token: '.$vars['token'], 'X-Auth-Secret: '.$vars['secret']);
+	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+	curl_setopt($curl, CURLOPT_VERBOSE, 0);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+	curl_setopt($curl, CURLOPT_URL, $url.$action);
+	curl_setopt($curl, CURLOPT_BUFFERSIZE, 131072);
+	curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+	curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
+
+	$result = curl_exec($curl);
+	$status_code = curl_getinfo($curl);
+	$json   = json_decode($result, true);
+	
+	curl_close($curl);
+	logModuleCall("sirportly_importer", $action, $payload, $result, $json);
+	return array('status_code' => $status_code['http_code'],'results' => $json);
+}
+
+function errors($array) 
+{
+  $errors_array = array();
+  foreach ($array as $key => $value) {
+    $errors_array[] = $key.' '.$value[0];
+  }
+  $count = count($errors_array);
+  switch ($count)
+  {
+    case 0:
+      $str = $array;
+    break;
+    case 1:
+      $str = $errors_array[0];
+    break;
+    case 2: 
+      $str = $errors_array[0].' and '.$errors_array[1];
+    break;
+    default:
+      $str = implode(', ', array_slice($errors_array, 0, -1)).' and '.$errors_array[($count - 1)];
+    break;
+  }
+  return $str;
+}
+
 
 function sirportly_output($vars) 
 {
@@ -91,7 +140,7 @@ function sirportly_output($vars)
         # fetch list of tickets
         $tickets = select_query('tbltickets');
         while ($ticket = mysql_fetch_array($tickets, MYSQL_ASSOC)) {
-          echo '<br>- Importing ticket #'.$ticket['id'].'<br>';
+          echo '<br>- Starting import of ticket #'.$ticket['id'].'<br>';
           # fetch client details
           $client = array();
           if ($ticket['userid'] && !$ticket['name'] && !$ticket['email']) {
@@ -103,12 +152,13 @@ function sirportly_output($vars)
           
           if (empty($client)) {
             ## we can't continue without a client so lets break
-            echo '<font colour="red">- Unable to import ticket #'.$ticket['id'].', no client exists. </font><br>';
-            break; 
+            echo '<font color="red">- Unable to import ticket #'.$ticket['id'].', no client exists. </font><br>';
+            continue; 
           }
          
           # prepare ticket payload
           $ticket_payload                 = array();
+          $ticket_payload['reference']    = $ticket['tid'];
           $ticket_payload['subject']      = $ticket['title'];
           $ticket_payload['status']       = $_SESSION['statuses'][$ticket['status']];
           $ticket_payload['priority']     = $_SESSION['priorities'][$ticket['urgency']];
@@ -117,24 +167,41 @@ function sirportly_output($vars)
           $ticket_payload['name']         = $client['firstname'].' '.$client['lastname']; 
           $ticket_payload['email']        = $client['email'];
           
-          # create ticket
-          $sirportly_ticket = sirportly_admin('/api/v1/tickets/submit',$vars['token'],$vars['secret'],$ticket_payload);
+          ## Create ticket, and log it
+          $sirportly_ticket = curl('/api/v1/tickets/submit', $vars, $ticket_payload);
           
-          # add initial reply to ticket
-          echo '- Adding reply to ticket <br>';
+          if ($sirportly_ticket['status_code'] != '201') {
+            echo '<font color="red">- Unable to import ticket #'.$ticket['id'].', '.errors($sirportly_ticket['results']['errors']).'.</font><br>';
+            continue;
+          } else {
+            echo '<font color="green">- Imported ticket #'.$ticket['id'].'.</font><br>';
+          }
+          
+          
+          ## Initial reply
+          
           $reply_payload = array();
-          $reply_payload['ticket'] = $sirportly_ticket['reference'];
-          $reply_payload['message'] = $ticket['message'];
-          $reply_payload['posted_at'] = $ticket['date'];
+          $reply_payload['ticket']          = $sirportly_ticket['results']['reference'];
+          $reply_payload['message']         = $ticket['message'];
+          $reply_payload['posted_at']       = $ticket['date'];
           
           if ($ticket['admin']) {
-            $reply_payload['user'] = $_SESSION['administrators'][$ticket['admin']];
+            $reply_payload['user']          = $_SESSION['administrators'][$ticket['admin']];
           } else {
-            $reply_payload['author_name'] = $client['firstname'] .' '.$client['lastname'];
-            $reply_payload['author_email'] = $client['email'];
+            $reply_payload['author_name']   = $client['firstname'] .' '.$client['lastname'];
+            $reply_payload['author_email']  = $client['email'];
           }
+          
+          ## Submit a reply
+          $sirportly_reply = curl('/api/v1/tickets/post_update', $vars, $reply_payload);
       
-          $sirportly_reply = sirportly_admin('/api/v1/tickets/post_update',$vars['token'],$vars['secret'],$reply_payload);
+          ## Lets check for some errors
+          if ($sirportly_reply['status_code'] != '201') {
+            echo '<font color="red">- Unable to add reply to ticket, '.errors($sirportly_reply['results']['error']).'.</font><br>';
+            continue;
+          } else {
+            echo '<font color="green">- Added reply.</font><br>';
+          }
           
           # attachments
             global $attachments_dir;
@@ -142,20 +209,26 @@ function sirportly_output($vars)
             foreach ($attachments as $key => $value) {
               if ($value) {
                 $attachment_payload = array();
-                $attachment_payload['ticket'] = $sirportly_ticket['reference'];
-                $attachment_payload['update'] = $sirportly_reply['id'];
+                $attachment_payload['ticket'] = $sirportly_ticket['results']['reference'];
+                $attachment_payload['update'] = $sirportly_reply['results']['id'];
                 $attachment_payload['file'] = '@'.$attachments_dir.$value;
   
-                $sirportly_attachment = sirportly_admin('/api/v1/tickets/add_attachment',$vars['token'],$vars['secret'],$attachment_payload);
+                $sirportly_attachment = curl('/api/v1/tickets/add_attachment', $vars, $attachment_payload);
+                ## Lets check for some errors
+                if ($sirportly_attachment['status_code'] != '201') {
+                  echo '<font color="red">- Unable to add attachment to ticket, '.errors($sirportly_attachment['results']['error']).'.</font><br>';
+                  continue;
+                } else {
+                  echo '<font color="green">- Added attachment to ticket.</font><br>';
+                }
               }              
             }
           
           # fetch ticket replies
           $replies = select_query('tblticketreplies', '', array('tid' => $ticket['id']));
           while ($reply = mysql_fetch_array($replies, MYSQL_ASSOC)) {
-            echo '- Adding reply to ticket <br>';
             $reply_payload = array();
-            $reply_payload['ticket'] = $sirportly_ticket['reference'];
+            $reply_payload['ticket'] = $sirportly_ticket['results']['reference'];
             $reply_payload['message'] = $reply['message'];
             $reply_payload['posted_at'] = $reply['date'];
             
@@ -166,9 +239,16 @@ function sirportly_output($vars)
               $reply_payload['author_name'] = $reply['name'];
               $reply_payload['author_email'] = $reply['email'];
             }
-            
-            # create update
-            $sirportly_reply = sirportly_admin('/api/v1/tickets/post_update',$vars['token'],$vars['secret'],$reply_payload);
+
+            ## Add updates
+            $sirportly_reply = curl('/api/v1/tickets/post_update', $vars, $reply_payload);
+            ## Lets check for some errors
+            if ($sirportly_reply['status_code'] != '201') {
+              echo '<font color="red">- Unable to add reply to ticket, '.errors($sirportly_reply['results']['error']).'.</font><br>';
+              continue;
+            } else {
+              echo '<font color="green">- Added reply.</font><br>';
+            }
             
            # attachments
             global $attachments_dir;
@@ -176,17 +256,33 @@ function sirportly_output($vars)
             foreach ($attachments as $key => $value) {
               if ($value) {
                 $attachment_payload = array();
-                $attachment_payload['ticket'] = $sirportly_ticket['reference'];
-                $attachment_payload['update'] = $sirportly_reply['id'];
+                $attachment_payload['ticket'] = $sirportly_ticket['results']['reference'];
+                $attachment_payload['update'] = $sirportly_reply['results']['id'];
                 $attachment_payload['file'] = '@'.$attachments_dir.$value;
   
-                $sirportly_attachment = sirportly_admin('/api/v1/tickets/add_attachment',$vars['token'],$vars['secret'],$attachment_payload);
+                $sirportly_attachment = curl('/api/v1/tickets/add_attachment', $vars, $attachment_payload);
+                ## Lets check for some errors
+                if ($sirportly_attachment['status_code'] != '201') {
+                  echo '<font color="red">- Unable to add attachment to ticket, '.errors($sirportly_attachment['results']['error']).'.</font><br>';
+                  continue;
+                } else {
+                  echo '<font color="green">- Added attachment to ticket.</font><br>';
+                }
               }              
             }
             
-            # reset updated_at field to last reply time
-            sirportly_admin('/api/v1/tickets/update',$vars['token'],$vars['secret'],array('ticket' => $sirportly_ticket['reference'], 'updated_at' => $reply['date'], 'status' => $_SESSION['statuses'][$ticket['status']])); 
           }
+          
+          ## Update updated_at field
+          $date_payload = array('ticket' => $sirportly_ticket['results']['reference'], 'updated_at' => $ticket['lastreply']);
+          $sirportly_date = curl('/api/v1/tickets/update', $vars, $date_payload);
+          ## Lets check for some errors
+          if ($sirportly_date['status_code'] != '200') {
+            echo '<font color="red">- Unable to update ticket updated_at field, '.errors($sirportly_date['results']['error']).'.</font><br>';
+            continue;
+          } else {
+            echo '<font color="green">- Updated updated_at field.</font><br>';
+          }          
           
           # set the timeout to 60 again
           set_time_limit(60);
