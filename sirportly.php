@@ -88,7 +88,6 @@ function sirportly_output($vars)
       # lets start the import
       if ($_SESSION['administrators']) {
         
-        
         # fetch list of tickets
         $tickets = select_query('tbltickets');
         while ($ticket = mysql_fetch_array($tickets, MYSQL_ASSOC)) {
@@ -107,7 +106,6 @@ function sirportly_output($vars)
             echo '<font colour="red">- Unable to import ticket #'.$ticket['id'].', no client exists. </font><br>';
             break; 
           }
-
          
           # prepare ticket payload
           $ticket_payload                 = array();
@@ -128,7 +126,6 @@ function sirportly_output($vars)
           $reply_payload['ticket'] = $sirportly_ticket['reference'];
           $reply_payload['message'] = $ticket['message'];
           $reply_payload['posted_at'] = $ticket['date'];
-          
           
           if ($ticket['admin']) {
             $reply_payload['user'] = $_SESSION['administrators'][$ticket['admin']];
@@ -191,8 +188,6 @@ function sirportly_output($vars)
             sirportly_admin('/api/v1/tickets/update',$vars['token'],$vars['secret'],array('ticket' => $sirportly_ticket['reference'], 'updated_at' => $reply['date'], 'status' => $_SESSION['statuses'][$ticket['status']])); 
           }
           
-          
-          
           # set the timeout to 60 again
           set_time_limit(60);
         }
@@ -231,31 +226,31 @@ function sirportly_output($vars)
             }
 
                  echo '</table><h2>Departments</h2>
-       <p>Please map your current list of administrators to those that exist within Sirportly.</p>
-         <form method="POST" action="addonmodules.php?module=sirportly&action=support">
+       <p>Please map your current list of departments to those that exist within Sirportly.</p>
          <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">';
          while ($department = mysql_fetch_array($whmcs_departments, MYSQL_ASSOC)) {
            echo '<tr><td width="20%" class="fieldlabel">'.$department['name'].' </td><td class="fieldarea"><select name="departments['.$department['id'].']">';
            foreach ($sirportly_departments as $key => $value) {
-             echo '<option value="'.$value['id'].'">'.$value['brand']['name'].' - '.$value['name'].'</option>';
+             echo '<option value="'.$value['id'].'" '.($department['name'] == $value['name'] ? "selected" : "").' >'.$value['brand']['name'].' - '.$value['name'].'</option>';
            }  
          }
          
-         echo '</table><h2>Priorities</h2>
-<p>Please map your current list of administrators to those that exist within Sirportly.</p>
- <form method="POST" action="addonmodules.php?module=sirportly&action=support">
- <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">';
-
- foreach ($whmcs_priorities as $key => $value) {
-   echo '<tr><td width="20%" class="fieldlabel">'.$value.' </td><td class="fieldarea"><select name="priorities['.$value.']">';
-   foreach ($sirportly_priorities as $key => $value) {
-     echo '<option value="'.$value['id'].'">'.$value['name'].'</option>';
-   }  
- }
+         echo '</table>';
+         
+        ## WHMCS to Sirportly Priority Map
+        echo '
+          <h2>Priorities</h2>
+          <p>Please map your current list of priorities to those that exist within Sirportly.</p>
+            <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">';
+              foreach ($whmcs_priorities as $whmcs_key => $whmcs_value) {
+                echo '<tr><td width="20%" class="fieldlabel">'.$whmcs_value.' </td><td class="fieldarea"><select name="priorities['.$whmcs_value.']">';
+                foreach ($sirportly_priorities as $key => $value) {
+                  echo '<option value="'.$value['id'].'" '.($whmcs_value['name'] == $value['name'] ? "selected" : "").' >'.$value['name'].'</option>';
+                }
+              }
  
    echo '</table><h2>Statuses</h2>
-     <p>Please map your current list of administrators to those that exist within Sirportly.</p>
-     <form method="POST" action="addonmodules.php?module=sirportly&action=support">
+     <p>Please map your current list of statuses to those that exist within Sirportly.</p>
      <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">';
    while ($status = mysql_fetch_array($whmcs_statuses, MYSQL_ASSOC)) {
      echo '<tr><td width="20%" class="fieldlabel">'.$status['title'].' </td><td class="fieldarea"><select name="statuses['.$status['title'].']">';
@@ -265,14 +260,13 @@ function sirportly_output($vars)
    }
    
     echo '</table><h2>Custom Fields</h2>
-      <p>Please map your current list of administrators to those that exist within Sirportly.</p>
+      <p>Please map your current list of custom fields to those that exist within Sirportly.</p>
       <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">';
       
     while ($field = mysql_fetch_array($whmcs_customfields, MYSQL_ASSOC)) {
       echo '<tr><td width="20%" class="fieldlabel">'.$field['fieldname'].' </td><td class="fieldarea"><input type="text" name="customfields['.$field['fieldname'].']">';
       
-    }
-             
+    }             
       
       echo '</table><p align="center"><input type="submit" value="Start Import" /></p></form>';
       
@@ -283,7 +277,6 @@ function sirportly_output($vars)
       echo '<div class="errorbox"><strong>An Error Occured!</strong><br />Please enter your API Token and/or Secret.</div>';
       return;
     }
-    
            
     if ($_POST){
       update_query('tbladdonmodules',array('value' => $_POST['brand']), array('module'=>'sirportly', 'setting' => 'brand'));
