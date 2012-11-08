@@ -11,12 +11,13 @@ function sirportly_config() {
     "version" => "1.1.1",
     "author" => "aTech Media",
       "fields" => array(
-        "url"     => array ("FriendlyName" => "API URL", "Type" => "text", "Size" => "50", "Default" => "api.sirportly.com", "Description" => "Without a trailing /"),
-        "token"   => array ("FriendlyName" => "API Token", "Type" => "text", "Size" => "50", "Description" => "API token can be generated within the Sirportly interface."),
-        "secret"  => array ("FriendlyName" => "API Secret", "Type" => "text", "Size" => "50"),
-        "ssl"     => array ("FriendlyName" => "Use SSL?", "Type" => "yesno", "Size" => "50", "Description" => "Connect to API via SSL?"),
-        "kb"      => array ("FriendlyName" => "Knowledge Base ID", "Type" => "text", "Size" => "50", "Default" => "", "Description" => "ID of the Knowledge Base"),
-        "frame_key" => array ("FriendlyName" => "Frame Key", "Type" => "password", "Size" => "50", "Default" => "", "Description" => "Frame Key"),
+        "url"         => array ("FriendlyName" => "API URL",             "Type" => "text",      "Size" => "50", "Default" => "api.sirportly.com", "Description" => "Without a trailing /"),
+        "token"       => array ("FriendlyName" => "API Token",           "Type" => "text",      "Size" => "50", "Description" => "API token can be generated within the Sirportly interface."),
+        "secret"      => array ("FriendlyName" => "API Secret",          "Type" => "text",      "Size" => "50"),
+        "ssl"         => array ("FriendlyName" => "Use SSL?",            "Type" => "yesno",     "Size" => "50", "Description" => "Connect to API via SSL?"),
+        "kb"          => array ("FriendlyName" => "Knowledge Base ID",   "Type" => "text",      "Size" => "50", "Default" => "", "Description" => "ID of the Knowledge Base"),
+        "frame_key"   => array ("FriendlyName" => "Frame Key",           "Type" => "password",  "Size" => "50", "Default" => "", "Description" => "Frame Key"),
+        'staff_url'   => array ("FriendlyName" => "Staff Interface URL", "Type" => "text",      "Size" => "50", "Default" => "", "Description" => "Full URL to your staff interface, etc http://whmcs.sirportly.com/"),
       )
     );
     return $configarray;

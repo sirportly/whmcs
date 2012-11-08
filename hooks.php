@@ -346,28 +346,35 @@ function knowledgebase_menu($vars){
 }
 
 
+function hook_add_new_ticket_link_to_client_summary($vars) {
+  ## Fetch the staff interface URL from the database
+  $module_data = select_query('tbladdonmodules', 'value', array('module' => 'sirportly', 'setting' => 'staff_url') );
+  $module_result = mysql_fetch_array($module_data, MYSQL_ASSOC);
+  if ($module_result['value'] != "") {    
+    ## Fetch client based on ID
+    $user_data = select_query('tblclients', 'email', array('id' => $_REQUEST['userid']) );
+    $user_result = mysql_fetch_array($user_data, MYSQL_ASSOC);
+    
+    return array('<a href="'.$module_result['value'].'/staff/tickets/new?customer_contact='.$user_result['email'].'"><img src="images/icons/ticketsother.png" border="0" align="absmiddle" /> Open New Sirportly Ticket</a>');
+  }
+}
+
+add_hook("AdminAreaClientSummaryActionLinks",1,"hook_add_new_ticket_link_to_client_summary");
+
+
+
+
 add_hook("ClientAreaHeadOutput",121,"knowledgebase_page");
 add_hook("ClientAreaHeadOutput",120,"knowledgebase_menu");
-
-
-
-
-
-
-
 add_hook("ClientEdit",111,"update_sirportly_email");
-
 add_hook("ClientAreaPage",112,"sirportly_close_ticket");
-
 add_hook("ClientAreaPage",111,"sirportly_link_accounts");
 add_hook("ClientAreaPage",111,"sirportly_clientstats");
-
 add_hook("ClientAreaPage",113,"sirportly_clientarea_viewticket");
 add_hook("ClientAreaPage",111,"sirportly_post_reply");
 add_hook("ClientAreaPage",112,"sirportly_redirect_if_enabled");
 add_hook("ClientAreaPage",112,"sirportly_tickets");
 add_hook("ClientAreaPage",100,"sirportly_step_1"); #112
 add_hook("ClientAreaPage",112,"sirportly_step_2");
-
 add_hook("ClientAreaPage",113,"sirportly_client_area");
 ?>
