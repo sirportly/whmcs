@@ -38,7 +38,8 @@ getticketsuggestions();
 </div>
 {/if}
 
-<form name="submitticket" method="post" action="{$smarty.server.PHP_SELF}?step=2" enctype="multipart/form-data" class="form-stacked">
+<form name="submitticket" method="post" accept-charset="UTF-8" action="{$smarty.server.PHP_SELF}?step=2" enctype="multipart/form-data" class="form-stacked">
+  <input name="utf8" type="hidden" value="&#x2713;" />
 
     <fieldset>
 
