@@ -59,7 +59,8 @@ foreach ($current_fields as $key => $value) {
         $api = localAPI('decryptpassword', array('password2' => $result[$row_key]), $admin['id']);
         $apiresults[sirportly_lang($key)][$row_key] =  $api['password'];
       }else{
-        $apiresults[sirportly_lang($key)][$row_key] = $result[$row_key];
+        ## UTF-8 Checking
+        mb_detect_encoding($result[$row_key], "UTF-8") == "UTF-8" ? : $apiresults[sirportly_lang($key)][$row_key] = utf8_encode($result[$row_key]);
       }
     }
   } else {
