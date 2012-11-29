@@ -16,6 +16,7 @@
             <th>{$LANG.supportticketsdepartment}</th>
             <th>{$LANG.supportticketssubject}</th>
             <th>{$LANG.supportticketsstatus}</th>
+            <th>{$LANG.supportticketspriority}</th>
             <th>{$LANG.supportticketsticketlastupdated}</th>
             <th>&nbsp;</th>
         </tr>
@@ -27,6 +28,7 @@
             <td>{$ticket.department}</td>
             <td><a href="viewticket.php?tid={$ticket.tid}&amp;c={$ticket.c}">{if $ticket.unread}<strong>{/if}{$ticket.subject}{if $ticket.unread}</strong>{/if}</a></td>
             <td>{$ticket.status}</td>
+            <td>{$ticket.priority}</td>
             <td>{$ticket.lastreply}</td>
             <td class="textcenter"><form method="get" action="viewticket.php"><input type="hidden" name="tid" value="{$ticket.tid}" /><input type="hidden" name="c" value="{$ticket.c}" /><input type="submit" value="{$LANG.supportticketsviewticket}" class="btn info" /></form></td>
         </tr>

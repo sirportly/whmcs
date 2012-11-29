@@ -136,10 +136,9 @@ function sirportly_submit_ticket($token,$secret,$params){
 
 function sirportly_clientarea_tickets($token,$secret,$customer,$brand=''){
   $ticket_array = array();
-  $tickets = sirportly_spql($token,$secret,"SELECT tickets.id, tickets.reference, tickets.subject, tickets.submitted_at, tickets.last_update_posted_at, priorities.name, priorities.colour, departments.name FROM tickets WHERE brands.id = '".$brand."' AND customers.id = '".$customer."' ORDER BY tickets.last_update_posted_at DESC");
+  $tickets = sirportly_spql($token,$secret,"SELECT tickets.id, tickets.reference, tickets.subject, tickets.submitted_at, tickets.last_update_posted_at, priorities.name, priorities.colour, departments.name, statuses.name, statuses.colour FROM tickets WHERE brands.id = '".$brand."' AND customers.id = '".$customer."' ORDER BY tickets.last_update_posted_at DESC");
  
   foreach ($tickets['results'] as $key => $value) {
-
     $ticket_array[] = array(
       'id' => $value['0'],
       'tid' => $value['1'],
@@ -147,7 +146,8 @@ function sirportly_clientarea_tickets($token,$secret,$customer,$brand=''){
       'date' => fromMySQLDate($value['3'],'time'),
       'department' => $value['7'],
       'subject' => $value['2'],
-      'status' => '<span style="color:#'.$value['6'].'">'.$value['5'].'</span>',
+      'status' => '<span style="color:#'.$value['9'].'">'.$value['8'].'</span>',
+      'priority' => '<span style="color:#'.$value['6'].'">'.$value['5'].'</span>',
       'urgengy' => $value['7'],
       'lastreply' => ($value['4'] ? fromMySQLDate($value['4'], 'time') : 'Never'),
       'unread' => 1,
