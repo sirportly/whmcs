@@ -94,8 +94,10 @@ function sirportly_post_reply(){
 
      if (!$reply) {
        $errormessage = 'An error occurred whilst posting your reply, please try again.';
+       $smarty->assign_by_ref('errormessage',$errormessage);
+     }else{
+       header('Location: viewticket.php?c='.$_GET['c'].'&tid='.$_GET['tid']);
      }
-     $smarty->assign_by_ref('errormessage',$errormessage);
   }
 }
 
