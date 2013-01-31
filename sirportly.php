@@ -124,9 +124,67 @@ function errors($array)
 
 function sirportly_output($vars) 
 {
-  echo '<p><strong>Options:</strong><a href="addonmodules.php?module=sirportly">Data Source</a> | <a href="addonmodules.php?module=sirportly&action=support">Support Tickets</a></p>';
+  echo '
+  <p>
+    <strong>Options:</strong>
+    <a href="addonmodules.php?module=sirportly">Data Source</a> | 
+    <a href="addonmodules.php?module=sirportly&action=support">Support Tickets</a> | 
+    <a href="addonmodules.php?module=sirportly&action=merge">Merge Contacts</a>
+  </p>';
   
   switch ($_GET['action']) {
+    case 'merge':
+      
+      if ($_POST) {
+        if (!$_POST['from'] or !$_POST['into'] or $_POST['from'] == $_POST['into']) {
+          echo '<div class="errorbox"><strong>An Error Occured!</strong><br />You cannot merge contacts into themselves.</div>';
+        } else {
+          $merge = sirportly_admin("/api/v1/customers/merge",$vars['token'],$vars['secret'], array('source_customer' => (int)$_POST['from'], 'destination_customer' => (int)$_POST['into']));
+          if ($merge['error']) {
+            echo '<div class="errorbox"><strong>An Error Occured!</strong><br />'.$merge['message'].'</div>';
+          }else{
+            echo '<div class="infobox"><strong>Success!</strong><br />Successfully merged the contacts.</div>';
+          }
+        }
+      }
+    
+      $sirportly_contacts = sirportly_admin('/api/v1/customers/all',$vars['token'],$vars['secret']);
+      $contacts           = array();
+      $page               = 0;
+      
+      for ($page = 1; $page <= $sirportly_contacts['pagination']['pages']; $page++) {
+        $sp_contacts = sirportly_admin('/api/v1/customers/all',$vars['token'],$vars['secret'], array('page' => $page));
+        foreach ($sp_contacts['records'] as $key => $value) {
+          $contacts[] = $value;
+        }
+      }
+      $whmcs_contacts     = full_query("SELECT sc.customerid, wc.firstname, wc.lastname, wc.email FROM sirportly_customers sc  LEFT JOIN tblclients wc ON sc.userid = wc.id");
+      echo '
+        <form method="POST" action="addonmodules.php?module=sirportly&action=merge">
+          <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">
+            <tr>
+              <td width="100px" class="fieldlabel">Merge</td>
+              <td class="fieldarea" width="100px"><select name="from">';
+                foreach ($contacts as $key => $value) {
+                  echo '<option'.($value['id'] == $_POST['from'] ? ' selected=selected':'').' value="'.$value['id'].'">'.$value['name'].' ('.$value['id'].')</option>';
+                }
+      echo '
+             </select> </td>
+             
+             <td width="50px" class="fieldlabel">in to</td>
+             <td class="fieldarea"width="100px"><select name="into">';
+               while ($contact = mysql_fetch_array($whmcs_contacts, MYSQL_ASSOC)) {
+                 echo '<option '.($contact['customerid'] == $_POST['into'] ? ' selected=selected':'').' value="'.$contact['customerid'].'">'.$contact['firstname'].' '.$contact['lastname'].' ('.$contact['customerid'].')</option>';
+               }
+     echo '
+            </select> </td>
+            </tr></table>
+            
+            <p align="center"><input type="submit" value="Merge Contacts" /></p>
+            </form>';
+      
+      
+    break;
     case 'support':
      if (!$vars['token'] || !$vars['secret']) {
       echo '<div class="errorbox"><strong>An Error Occured!</strong><br />Please enter your API Token and/or Secret.</div>';
