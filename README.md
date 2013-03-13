@@ -1,6 +1,14 @@
 #WHMCS & Sirportly Integration
 
+```
+We do not currently support WHMCS v5.2.x, please do not upgrade WHMCS as this will break the Sirportly module.
+```
+
 This module allows you to fetch data from your WHMCS installation to display within Sirportly, it also allows clients to view, open and reply to support tickets from within the WHMCS clientarea.
+
+## Prerequisites
+
+This module will only work for WHMCS v5.1
 
 ## Installation
 
