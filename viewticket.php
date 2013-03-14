@@ -13,7 +13,7 @@ if ( !sirportly_enabled() ) {
   die('Sirportly module not enabled.');
 }
 
-if ($CONFIG['RequireLoginforClientTickets'] == 'on') {
+if ( $CONFIG['RequireLoginforClientTickets'] == 'on' && !$ca->isLoggedIn() ) {
   header('Location: login.php');
 }
 
