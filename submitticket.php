@@ -10,6 +10,14 @@ if ( !sirportly_enabled() ) {
   die('Sirportly module not enabled.');
 }
 
+## Logged in?
+if ( $ca->isLoggedIn() ) {
+  $result = mysql_query("SELECT CONCAT_WS(' ', firstname, lastname) as full_name, email FROM tblclients WHERE id=".$ca->getUserID());
+  $client = mysql_fetch_array($result, MYSQL_ASSOC);
+  $ca->assign('email', $client['email'] );
+  $ca->assign('clientname', $client['full_name'] );
+}
+
 switch ($_GET['step']) {
   case '2':
     ## Default department, priority
@@ -26,6 +34,18 @@ switch ($_GET['step']) {
         $ca->assign('errormessage', $whmcs->get_lang('supportticketserrornomessage') );
       } elseif( $contact = sirportly_contact() ) {
         $ticket = curl('/api/v2/tickets/submit', array('subject' => $_POST['subject'], 'priority' => $_POST['priorityid'],  'department' => $_POST['deptid'], 'contact' => $contact, 'status' => $settings['status'], 'message' => $_POST['message'] ));
+        if ($ticket['status'] != 201) {
+          foreach ($ticket['results']['errors'] as $key => $value) {
+            $errors .= "<li>".preg_replace("/_id$/", "", ucfirst($key) )." ".$value['0']."</li>";
+          }
+          $ca->assign('errormessage', $errors );
+        } else {
+          $_SESSION['tid'] = $ticket['results']['reference'];
+          $_SESSION['c'] = $ticket['results']['id'];
+          header('Location: submittickets.php?step=3');
+        }
+      }elseif( $ca->isLoggedIn() ){
+        $ticket = curl('/api/v2/tickets/submit', array('subject' => $_POST['subject'], 'priority' => $_POST['priorityid'],  'department' => $_POST['deptid'], 'name' => $client['full_name'], 'email' => $client['email'], 'status' => $settings['status'], 'message' => $_POST['message'] ));
         if ($ticket['status'] != 201) {
           foreach ($ticket['results']['errors'] as $key => $value) {
             $errors .= "<li>".preg_replace("/_id$/", "", ucfirst($key) )." ".$value['0']."</li>";
@@ -55,14 +75,6 @@ switch ($_GET['step']) {
           header('Location: submittickets.php?step=3');
         }
       }
-    }
-  
-    ## Logged in?
-    if ( $ca->isLoggedIn() ) {
-      $result = mysql_query("SELECT CONCAT_WS(' ', firstname, lastname) as full_name, email FROM tblclients WHERE id=".$ca->getUserID());
-      $client = mysql_fetch_array($result, MYSQL_ASSOC);
-      $ca->assign('email', $client['email'] );
-      $ca->assign('clientname', $client['full_name'] );
     }
     
     ## Fetch the departments
