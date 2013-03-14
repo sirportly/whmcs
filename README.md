@@ -1,22 +1,22 @@
 #WHMCS & Sirportly Integration
 
-```
-We do not currently support WHMCS v5.2.x, please do not upgrade WHMCS as this will break the Sirportly module.
-```
-
 This module allows you to fetch data from your WHMCS installation to display within Sirportly, it also allows clients to view, open and reply to support tickets from within the WHMCS clientarea.
 
 ## Prerequisites
 
-This module will only work for WHMCS v5.1
+**Please ensure you have a backup of both your files and database before attempting to install this module**
+
+This module is tested on WHMCS v5.1+
 
 ## Installation
 
-To install you need to download the files within the repo and upload them to;
+To install you need to download all the files from the repo and upload them to:
 
 ```
 WHMCS_ROOT/modules/addons/sirportly
 ```
+
+With the exception of `submitticket.php` and `viewticket.php` which needs to be uploaded to the root of your WHMCS installation, overwriting the original WHMCS files. 
 
 Once the files have successfully uploaded navigate to the WHMCS administration area and click (Setup > Addon Modules)
 
