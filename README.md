@@ -16,7 +16,7 @@ To install you need to download all the files from the repo and upload them to:
 WHMCS_ROOT/modules/addons/sirportly
 ```
 
-With the exception of `sumbitticket.php` and `viewticket.php` which needs to be uploaded to the root of your WHMCS installation, overwriting the original WHMCS files. 
+With the exception of `submitticket.php` and `viewticket.php` which needs to be uploaded to the root of your WHMCS installation, overwriting the original WHMCS files. 
 
 Once the files have successfully uploaded navigate to the WHMCS administration area and click (Setup > Addon Modules)
 
