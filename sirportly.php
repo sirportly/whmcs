@@ -8,14 +8,13 @@ function sirportly_config() {
     $configarray = array(
     "name" => "Sirportly",
     "description" => "",
-    "version" => "1.1.2",
-    "author" => "aTech Media",
+    "version" => "2.0.0",
+    "author" => "aTech Media Ltd",
       "fields" => array(
         "url"         => array ("FriendlyName" => "API URL",             "Type" => "text",      "Size" => "50", "Default" => "api.sirportly.com", "Description" => "Without a trailing /"),
         "token"       => array ("FriendlyName" => "API Token",           "Type" => "text",      "Size" => "50", "Description" => "API token can be generated within the Sirportly interface."),
         "secret"      => array ("FriendlyName" => "API Secret",          "Type" => "text",      "Size" => "50"),
         "ssl"         => array ("FriendlyName" => "Use SSL?",            "Type" => "yesno",     "Size" => "50", "Description" => "Connect to API via SSL?"),
-        "kb"          => array ("FriendlyName" => "Knowledge Base ID",   "Type" => "text",      "Size" => "50", "Default" => "", "Description" => "ID of the Knowledge Base"),
         "frame_key"   => array ("FriendlyName" => "Frame Key",           "Type" => "password",  "Size" => "50", "Default" => "", "Description" => "Frame Key"),
         'staff_url'   => array ("FriendlyName" => "Staff Interface URL", "Type" => "text",      "Size" => "50", "Default" => "", "Description" => "Full URL to your staff interface, etc http://whmcs.sirportly.com/"),
       )
@@ -71,56 +70,6 @@ function sirportly_deactivate() {
 	
   return array('status'=>'success');
 }
-
-function curl($action, $vars, $payload)
-{
-  $url = ($vars['ssl'] == 'on' ? 'https://' : 'http://').$vars['url'];  
-  $curl = curl_init();	
-
-	$header = array('X-Auth-Token: '.$vars['token'], 'X-Auth-Secret: '.$vars['secret']);
-	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-	curl_setopt($curl, CURLOPT_VERBOSE, 0);
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-	curl_setopt($curl, CURLOPT_URL, $url.$action);
-	curl_setopt($curl, CURLOPT_BUFFERSIZE, 131072);
-	curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-	curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
-
-	$result = curl_exec($curl);
-	$status_code = curl_getinfo($curl);
-	$json   = json_decode($result, true);
-	
-	curl_close($curl);
-	logModuleCall("sirportly_importer", $action, $payload, $result, $json);
-	return array('status_code' => $status_code['http_code'],'results' => $json);
-}
-
-function errors($array) 
-{
-  $errors_array = array();
-  foreach ($array as $key => $value) {
-    $errors_array[] = $key.' '.$value[0];
-  }
-  $count = count($errors_array);
-  switch ($count)
-  {
-    case 0:
-      $str = $array;
-    break;
-    case 1:
-      $str = $errors_array[0];
-    break;
-    case 2: 
-      $str = $errors_array[0].' and '.$errors_array[1];
-    break;
-    default:
-      $str = implode(', ', array_slice($errors_array, 0, -1)).' and '.$errors_array[($count - 1)];
-    break;
-  }
-  return $str;
-}
-
 
 function sirportly_output($vars) 
 {
