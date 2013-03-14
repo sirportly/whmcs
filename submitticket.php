@@ -42,7 +42,7 @@ switch ($_GET['step']) {
         } else {
           $_SESSION['tid'] = $ticket['results']['reference'];
           $_SESSION['c'] = $ticket['results']['id'];
-          header('Location: submittickets.php?step=3');
+          header('Location: submitticket.php?step=3');
         }
       }elseif( $ca->isLoggedIn() ){
         $ticket = curl('/api/v2/tickets/submit', array('subject' => $_POST['subject'], 'priority' => $_POST['priorityid'],  'department' => $_POST['deptid'], 'name' => $client['full_name'], 'email' => $client['email'], 'status' => $settings['status'], 'message' => $_POST['message'] ));
@@ -54,7 +54,7 @@ switch ($_GET['step']) {
         } else {
           $_SESSION['tid'] = $ticket['results']['reference'];
           $_SESSION['c'] = $ticket['results']['id'];
-          header('Location: submittickets.php?step=3');
+          header('Location: submitticket.php?step=3');
         }
       } elseif( !$_POST['name'] ) {
         $ca->assign('errormessage', $whmcs->get_lang('supportticketserrornoname') );
@@ -72,7 +72,7 @@ switch ($_GET['step']) {
         } else {
           $_SESSION['tid'] = $ticket['results']['reference'];
           $_SESSION['c'] = $ticket['results']['id'];
-          header('Location: submittickets.php?step=3');
+          header('Location: submitticket.php?step=3');
         }
       }
     }
