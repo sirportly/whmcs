@@ -6,8 +6,47 @@ function sirportly_tickets($vars)
 {
   if ( sirportly_enabled() ) {
     if ( $contact = sirportly_contact() ) {
-      $tickets = curl('/api/v2/tickets/contact', array('contact' => $contact, 'page' => $vars['pagenumber']));
-      $opntickets = curl('/api/v2/tickets/contact', array('contact' => $contact, 'status_types' => '0,2'));
+
+      # Set the default ticket params
+      $ticket_params = array();
+      $ticket_params['contact']                   = $contact;
+      $ticket_params['page']                      = $vars['pagenumber'];
+
+      if ($vars['orderby']) {
+        switch ($vars['orderby']) {
+          case 'date':
+            $ticket_params['sort_by'] = 'created_at';
+          break;
+          case 'subject':
+            $ticket_params['sort_by'] = 'subject';
+          break;
+          case 'lastreply':
+            $ticket_params['sort_by'] = 'last_update_posted_at';
+          break;
+        }
+      }
+
+      if ($vars['sort']) {
+        switch ($vars['sort']) {
+          case 'asc':
+            $ticket_params['order'] = 'asc';
+          break;
+          case 'desc':
+            $ticket_params['order'] = 'desc';
+          break;
+          default:
+            $ticket_params['order'] = 'asc';
+          break;
+        }
+      }
+
+      $tickets                                    = curl('/api/v2/tickets/contact', $ticket_params);
+
+      # We now need to unset the page and set the statuses we need
+      $ticket_params['page']                      = 1;
+      $ticket_params['status_types']              = '0,2';
+
+      $opntickets                                 = curl('/api/v2/tickets/contact', $ticket_params);
       $ticket_records                             = ($vars['filename'] == 'supporttickets' ? $tickets['results']['records'] : $opntickets['results']['records']);
       $vars['tickets']                            = sirportly_ticket_table($ticket_records);
       $vars['numtickets']                         = $tickets['results']['pagination']['total_records'];
@@ -15,7 +54,6 @@ function sirportly_tickets($vars)
       $vars['numopentickets']                     = $opntickets['results']['pagination']['total_records'];
       $vars['clientsstats']['numtickets']         = $tickets['results']['pagination']['total_records'];
       $vars['clientsstats']['numactivetickets']   = $opntickets['results']['pagination']['total_records'];
-      $vars['numproducts']                        = $tickets['results']['pagination']['total_records'];
       $vars['numitems']                           = $tickets['results']['pagination']['total_records'];
       $vars['nextpage']                           = ($vars['pagenumber'] < $tickets['results']['pagination']['pages'] ? $vars['pagenumber'] + 1 : 0 );
       $vars['prevpage']                           = ($vars['pagenumber'] != 1 ? $vars['pagenumber'] - 1 : 0 );
@@ -27,7 +65,6 @@ function sirportly_tickets($vars)
       $vars['numopentickets']                     = '0';
       $vars['clientsstats']['numtickets']         = '0';
       $vars['clientsstats']['numactivetickets']   = '0';
-      $vars['numproducts']                        = '0';
       $vars['numitems']                           = '0';
       $vars['nextpage']                           = '0';
       $vars['totalpages']                         = '1';
