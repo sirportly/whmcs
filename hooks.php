@@ -8,12 +8,13 @@ function sirportly_tickets($vars)
     if ( $contact = sirportly_contact() ) {
       $tickets = curl('/api/v2/tickets/contact', array('contact' => $contact, 'page' => $vars['pagenumber']));
       $opntickets = curl('/api/v2/tickets/contact', array('contact' => $contact, 'status_types' => '0,2'));
-      $vars['tickets']                            = sirportly_ticket_table($tickets['results']['records']);
+      $ticket_records                             = ($vars['filename'] == 'supporttickets' ? $tickets['results']['records'] : $opntickets['results']['records']);
+      $vars['tickets']                            = sirportly_ticket_table($ticket_records);
       $vars['numtickets']                         = $tickets['results']['pagination']['total_records'];
       $vars['numactivetickets']                   = $tickets['results']['pagination']['total_records'];
       $vars['numopentickets']                     = $opntickets['results']['pagination']['total_records'];
       $vars['clientsstats']['numtickets']         = $tickets['results']['pagination']['total_records'];
-      $vars['clientsstats']['numactivetickets']   = $tickets['results']['pagination']['total_records'];
+      $vars['clientsstats']['numactivetickets']   = $opntickets['results']['pagination']['total_records'];
       $vars['numproducts']                        = $tickets['results']['pagination']['total_records'];
       $vars['numitems']                           = $tickets['results']['pagination']['total_records'];
       $vars['nextpage']                           = ($vars['pagenumber'] < $tickets['results']['pagination']['pages'] ? $vars['pagenumber'] + 1 : 0 );
@@ -48,8 +49,8 @@ function sirportly_link_accounts($vars){
 }
 
 # when a client updates the email in WHMCS update Sirportly
-function update_sirportly_email($vars){	
-	if ( sirportly_enabled() ) {		
+function update_sirportly_email($vars){
+	if ( sirportly_enabled() ) {
 		$sirportly_customer = select_query('sirportly_customers', '', array('userid' => $vars['userid']));
 		if (mysql_num_rows($sirportly_customer)) {
 			$sirportly_customer = mysql_fetch_array($sirportly_customer, MYSQL_ASSOC);
@@ -57,20 +58,20 @@ function update_sirportly_email($vars){
 			$customer['customer'] = $sirportly_customer['customerid'];
 			$customer['method']		= $vars['olddata']['email'];
 			$customer['data'] 		= $vars['email'];
-			sirportly_admin('/api/v1/customers/edit_contact_method',$sirportly_settings['token'],$sirportly_settings['secret'],$customer);			
+			sirportly_admin('/api/v1/customers/edit_contact_method',$sirportly_settings['token'],$sirportly_settings['secret'],$customer);
 		}
-	}	
+	}
 }
 
 function hook_add_new_ticket_link_to_client_summary($vars) {
   ## Fetch the staff interface URL from the database
   $module_data = select_query('tbladdonmodules', 'value', array('module' => 'sirportly', 'setting' => 'staff_url') );
   $module_result = mysql_fetch_array($module_data, MYSQL_ASSOC);
-  if ($module_result['value'] != "") {    
+  if ($module_result['value'] != "") {
     ## Fetch client based on ID
     $user_data = select_query('tblclients', 'email', array('id' => $_REQUEST['userid']) );
     $user_result = mysql_fetch_array($user_data, MYSQL_ASSOC);
-    
+
     return array('<a href="'.$module_result['value'].'/staff/tickets/new?customer_contact='.$user_result['email'].'"><img src="images/icons/ticketsother.png" border="0" align="absmiddle" /> Open New Sirportly Ticket</a>');
   }
 }
