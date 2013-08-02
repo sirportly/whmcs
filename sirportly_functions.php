@@ -74,6 +74,60 @@ function sirportly_settings()
   return $settings;
 }
 
+function doc_nav($kb) {
+  global $full_path_map, $all_path_links;
+  $nav = array();
+  $path = split('/', $_SERVER['PATH_INFO']);
+  if (!empty($path)) {
+    $all_path_links = array();
+    foreach ($path as $parent) {
+      if (empty($all_path_links)) {
+        $all_path_links[] = $parent;
+      } else {
+        $all_path_links[] = end($all_path_links) . "/" . $parent;
+      }
+    }
+  }
+  
+  $full_path_map = array();
+  $kb = curl('/api/v2/knowledge/tree', array('kb' => '386'));
+  $pages = $kb['results'];
+  
+  foreach ($pages as $page) {
+    $nav[] = nav_for($page);
+  }
+  $nav = join("",$nav);
+  return "<ul class='root filetree treeview'>{$nav}</ul>";
+}
+
+function nav_for($page, $parent) {
+  $classes = array();
+  $children = array();
+  global $full_path_map, $all_path_links;
+  if ($page['permalink']) {
+    $full_path_map[$page['id']] = join(array($full_path_map[$parent['id']], $page['permalink']), '/');//$parent['permalink'] ;
+  }  
+  
+  foreach ($page['children'] as $child) {
+    $children[] = nav_for($child, $page);
+  }
+  
+  $state = 'closed';
+  if(empty($full_path_map[$page['id']])){
+    $classes[] = "root";
+    $state = "open";
+  } elseif( is_array($all_path_links) && in_array($full_path_map[$page['id']], $all_path_links) ){
+    $state = 'open';
+  }
+  
+  $classes[] = (empty($children) ? 'none' : 'has');
+  $classes[] = (empty($children) ? 'file' : 'folder');
+  $url = join(array('knowledgebase', $full_path_map[$page['id']]), '');
+  $link = "<a href='{$url}' class='".join(' ', $classes)."'>{$page['title']}</a>";
+  $return_children = empty($children) ? '' : "<ul>".join($children)."</ul>";
+  return "<li class='{$state}'>{$link}{$return_children}</li>";
+}
+
 function curl($action, $params = array())
 {
   $settings = sirportly_settings();

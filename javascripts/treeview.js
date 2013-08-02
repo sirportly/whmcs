@@ -1,3 +1,3 @@
 $(document).ready(function(){
-  $("#browser").treeview();
+  $("ul.treeview").treeview();
 });

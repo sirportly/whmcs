@@ -17,6 +17,7 @@ function sirportly_config() {
         "ssl"         => array ("FriendlyName" => "Use SSL?",            "Type" => "yesno",     "Size" => "50", "Description" => "Connect to API via SSL?"),
         "frame_key"   => array ("FriendlyName" => "Frame Key",           "Type" => "password",  "Size" => "50", "Default" => "", "Description" => "Frame Key"),
         'staff_url'   => array ("FriendlyName" => "Staff Interface URL", "Type" => "text",      "Size" => "50", "Default" => "", "Description" => "Full URL to your staff interface, etc http://whmcs.sirportly.com/"),
+        'kb'          => array ("FriendlyName" => "Knowledge Base ID",   "Type" => "text",      "Size" => "50"),
       )
     );
     return $configarray;
