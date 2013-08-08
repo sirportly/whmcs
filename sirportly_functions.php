@@ -75,6 +75,7 @@ function sirportly_settings()
 }
 
 function doc_nav($kb) {
+  $settings = sirportly_settings();
   global $full_path_map, $all_path_links;
   $nav = array();
   $path = split('/', $_SERVER['PATH_INFO']);
@@ -90,7 +91,7 @@ function doc_nav($kb) {
   }
   
   $full_path_map = array();
-  $kb = curl('/api/v2/knowledge/tree', array('kb' => '386'));
+  $kb = curl('/api/v2/knowledge/tree', array('kb' => $settings['kb']));
   $pages = $kb['results'];
   
   foreach ($pages as $page) {
@@ -105,7 +106,7 @@ function nav_for($page, $parent) {
   $children = array();
   global $full_path_map, $all_path_links;
   if ($page['permalink']) {
-    $full_path_map[$page['id']] = join(array($full_path_map[$parent['id']], $page['permalink']), '/');//$parent['permalink'] ;
+    $full_path_map[$page['id']] = join(array($full_path_map[$parent['id']], $page['permalink']), '/');
   }  
   
   foreach ($page['children'] as $child) {
