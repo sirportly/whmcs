@@ -85,21 +85,6 @@ function sirportly_link_accounts($vars){
   }
 }
 
-# when a client updates the email in WHMCS update Sirportly
-function update_sirportly_email($vars){
-	if ( sirportly_enabled() ) {
-		$sirportly_customer = select_query('sirportly_customers', '', array('userid' => $vars['userid']));
-		if (mysql_num_rows($sirportly_customer)) {
-			$sirportly_customer = mysql_fetch_array($sirportly_customer, MYSQL_ASSOC);
-			$sirportly_settings = sirportly_settings();
-			$customer['customer'] = $sirportly_customer['customerid'];
-			$customer['method']		= $vars['olddata']['email'];
-			$customer['data'] 		= $vars['email'];
-			sirportly_admin('/api/v1/customers/edit_contact_method',$sirportly_settings['token'],$sirportly_settings['secret'],$customer);
-		}
-	}
-}
-
 function hook_add_new_ticket_link_to_client_summary($vars) {
   ## Fetch the staff interface URL from the database
   $module_data = select_query('tbladdonmodules', 'value', array('module' => 'sirportly', 'setting' => 'staff_url') );
@@ -121,5 +106,4 @@ function sirportly_css()
 add_hook("ClientAreaPage",200,"sirportly_tickets");
 add_hook("ClientAreaHeadOutput",10,"sirportly_css");
 add_hook("AdminAreaClientSummaryActionLinks",1,"hook_add_new_ticket_link_to_client_summary");
-add_hook("ClientEdit",111,"update_sirportly_email");
 add_hook("ClientAreaPage",111,"sirportly_link_accounts");
