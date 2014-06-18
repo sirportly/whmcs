@@ -54,10 +54,13 @@ function sirportly_tickets($vars)
       $vars['numopentickets']                     = $opntickets['results']['pagination']['total_records'];
       $vars['clientsstats']['numtickets']         = $tickets['results']['pagination']['total_records'];
       $vars['clientsstats']['numactivetickets']   = $opntickets['results']['pagination']['total_records'];
-      $vars['numitems']                           = $tickets['results']['pagination']['total_records'];
-      $vars['nextpage']                           = ($vars['pagenumber'] < $tickets['results']['pagination']['pages'] ? $vars['pagenumber'] + 1 : 0 );
-      $vars['prevpage']                           = ($vars['pagenumber'] != 1 ? $vars['pagenumber'] - 1 : 0 );
-      $vars['totalpages']                         = $tickets['results']['pagination']['pages'];
+
+      if ($vars['filename'] == 'supporttickets') {
+        $vars['numitems']                           = $tickets['results']['pagination']['total_records'];
+        $vars['nextpage']                           = ($vars['pagenumber'] < $tickets['results']['pagination']['pages'] ? $vars['pagenumber'] + 1 : 0 );
+        $vars['prevpage']                           = ($vars['pagenumber'] != 1 ? $vars['pagenumber'] - 1 : 0 );
+        $vars['totalpages']                         = $tickets['results']['pagination']['pages'];
+      }
     }else{
       $vars['tickets']                            = array();
       $vars['numtickets']                         = '0';
@@ -65,9 +68,11 @@ function sirportly_tickets($vars)
       $vars['numopentickets']                     = '0';
       $vars['clientsstats']['numtickets']         = '0';
       $vars['clientsstats']['numactivetickets']   = '0';
-      $vars['numitems']                           = '0';
-      $vars['nextpage']                           = '0';
-      $vars['totalpages']                         = '1';
+      if ($vars['filename'] == 'supporttickets') {
+        $vars['numitems']                           = '0';
+        $vars['nextpage']                           = '0';
+        $vars['totalpages']                         = '1';
+      }
     }
     return $vars;
   }
