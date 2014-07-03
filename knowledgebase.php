@@ -1,8 +1,8 @@
 <?PHP
 define("CLIENTAREA",true);
 require("init.php");
-require_once('sirportly_functions.php');
-include_once "markdown.php";
+require_once('modules/addons/sirportly/sirportly_functions.php');
+include_once "modules/addons/sirportly/markdown.php";
 $ca = new WHMCS_ClientArea();
 $ca->initPage();
 $ca->setPageTitle( $whmcs->get_lang('supportticketssubmitticket') );
