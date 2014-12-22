@@ -41,7 +41,7 @@ getticketsuggestions();
 <tr><td class="fieldarea">{$LANG.supportticketsclientemail}</td><td>{if $loggedin}{$email}{else}<input type="text" name="email" size="50" value="{$email}" />{/if}</td></tr>
 <tr><td class="fieldarea">{$LANG.supportticketsdepartment}</td><td>{$department}</td></tr>
 <tr><td class="fieldarea">{$LANG.supportticketsticketsubject}</td><td><input type="text" name="subject" size="60" value="{$subject}" /></td></tr>
-<tr><td class="fieldarea">{$LANG.supportticketsticketurgency}</td><td><select name="urgency" id="priority">
+<tr><td class="fieldarea">{$LANG.supportticketsticketurgency}</td><td><select name="urgency" id="priorityid">
   {foreach from=$priorities item=priority}
       <option value="{$priority.id}"{if $priority.id eq $priorityid} selected="selected"{/if}>{$priority.name}</option>
   {/foreach}
