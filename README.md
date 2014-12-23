@@ -6,7 +6,7 @@ This module allows you to fetch data from your WHMCS installation to display wit
 
 **Please ensure you have a backup of both your files and database before attempting to install this module**
 
-This module is tested on WHMCS v5.1+
+This module is tested on WHMCS v5.1
 
 ## Installation
 
