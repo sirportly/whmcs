@@ -32,7 +32,7 @@ Here you will see a list of modules that have been uploaded, within this list yo
 
 ## Customer Data Source
 
-Within WHMCS navigate to (Addons > Sirportly), here you will see a list of columns that you may select that will be passed to Sirportly. To setup the Data Source within Sirportly navigate to the Automation & API section of the admin page and click 'Data Sources' then the 'Add New Data Source' button.
+Within WHMCS navigate to (Addons > Sirportly), here you will see a list of columns that you may select that will be passed to Sirportly. To setup the Data Source within Sirportly navigate to the ```Workflow``` section of the admin page and click ```Data Sources``` then the 'Add New Data Source' button.
 Here you will be presented a form;
 
 `Name` Enter a memorable name for the datasource, 'WHMCS' is a good start.
