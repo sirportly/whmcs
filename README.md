@@ -35,13 +35,10 @@ Here you will see a list of modules that have been uploaded, within this list yo
 Within WHMCS navigate to (Addons > Sirportly), here you will see a list of columns that you may select that will be passed to Sirportly. To setup the Data Source within Sirportly navigate to the ```Workflow``` section of the admin page and click ```Data Sources``` then the 'Add New Data Source' button.
 Here you will be presented a form;
 
-`Name` Enter a memorable name for the datasource, 'WHMCS' is a good start.
-
-`URL` Here you need to enter the URL of WHMCS plus /modules/addons/sirportly/api.php For example http://www.example.com/modules/addons/sirportly/api.php 
-
-`Username` The username for a WHMCS administrator.
-
-`Password` The password for the above administrator.
+* `Name` Enter a memorable name for the datasource, 'WHMCS' is a good start.
+* `URL` Here you need to enter the URL of WHMCS plus /modules/addons/sirportly/api.php For example http://www.example.com/modules/addons/sirportly/api.php 
+* `Username` The username for a WHMCS administrator.
+* `Password` The password for the above administrator.
 
 ## Support Integration
 
