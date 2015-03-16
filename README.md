@@ -40,6 +40,18 @@ Here you will be presented a form;
 * `Username` The username for a WHMCS administrator.
 * `Password` The password for the above administrator.
 
+## Customer Data Frame
+
+Data frames allow you to easily display additional information about your customers directly in Sirportly.  You can configure these frames to automatically grab HTML from WHMCS using this module.
+
+To setup the Data Frame firstly navigate to the Sirportly addon in WHMCS, and set an **auth key**, this will be used by Sirportly to authenticate itself with your installation.
+
+Next, within Sirportly head to the Data Frames page (Admin > Workflow > Data Frames), hit **Add New Data Frame** and enter the following;
+
+* `Name` - Enter a memorable name for the data frame
+* `Url` - Here you need to enter the URL of WHMCS plus /modules/addons/sirportly/frame.php For example ```http://www.example.com/modules/addons/sirportly/frame.php```
+* `Auth Key` - Enter the same value as you entered in WHMCS
+
 ## Support Integration
 
 The module also allows Sirportly to takeover the support ticket area within the clientarea so all new tickets are submitted to Sirportly, to enable this option navigate to (Addons > Sirportly) within the WHMCS administration area and click the 'Support Tickets' link. You will now be presented with three options;
