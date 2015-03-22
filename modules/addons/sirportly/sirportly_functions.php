@@ -24,7 +24,7 @@ function sirportly_status($token,$secret){
 function sirportly_priorities($token,$secret){
   $priority_array = array();
   $priorities = curl('/api/v1/objects/priorities');
-  
+
   foreach ($priorities['results'] as $key => $value) {
     $priority_array[] = array('id' => $value['id'], 'name' => $value['name']);
   }
@@ -64,6 +64,25 @@ function sirportly_contact()
   }
 }
 
+function sirportly_contacts()
+{
+  $sirportly_contacts = curl('/api/v2/contacts/all');
+  $contacts           = array();
+
+  for ($page = 1; $page <= $sirportly_contacts['results']['pagination']['pages']; $page++) {
+    $sp_contacts = curl('/api/v2/contacts/all', array('page' => $page));
+    foreach ($sp_contacts['results']['records'] as $key => $value) {
+      $contacts[] = $value;
+    }
+  }
+  return $contacts;
+}
+
+function sirportly_merge_contacts($source, $destination)
+{
+  return curl('/api/v2/contacts/merge', array('source_contact' => $source, 'destination_contact' => $destination));
+}
+
 function sirportly_settings()
 {
   $result = select_query('tbladdonmodules', '', array('module' => 'sirportly'));
@@ -89,11 +108,11 @@ function doc_nav($kb) {
       }
     }
   }
-  
+
   $full_path_map = array();
   $kb = curl('/api/v2/knowledge/tree', array('kb' => $settings['kb']));
   $pages = $kb['results'];
-  
+
   foreach ($pages as $page) {
     $nav[] = nav_for($page);
   }
@@ -107,12 +126,12 @@ function nav_for($page, $parent) {
   global $full_path_map, $all_path_links;
   if ($page['permalink']) {
     $full_path_map[$page['id']] = join(array($full_path_map[$parent['id']], $page['permalink']), '/');
-  }  
-  
+  }
+
   foreach ($page['children'] as $child) {
     $children[] = nav_for($child, $page);
   }
-  
+
   $state = 'closed';
   if(empty($full_path_map[$page['id']])){
     $classes[] = "root";
@@ -120,7 +139,7 @@ function nav_for($page, $parent) {
   } elseif( is_array($all_path_links) && in_array($full_path_map[$page['id']], $all_path_links) ){
     $state = 'open';
   }
-  
+
   $classes[] = (empty($children) ? 'none' : 'has');
   $classes[] = (empty($children) ? 'file' : 'folder');
   $url = join(array('knowledgebase', $full_path_map[$page['id']]), '');
@@ -132,8 +151,8 @@ function nav_for($page, $parent) {
 function curl($action, $params = array())
 {
   $settings = sirportly_settings();
-  $url = ($settings['ssl'] == 'on' ? 'https://' : 'http://').$settings['url'];  
-  $curl = curl_init();	
+  $url = ($settings['ssl'] == 'on' ? 'https://' : 'http://').$settings['url'];
+  $curl = curl_init();
   $default_params = array('brand' => $settings['brand']);
   $params = array_merge($default_params, $params);
 
@@ -150,7 +169,7 @@ function curl($action, $params = array())
 	$result = curl_exec($curl);
 	$status_code = curl_getinfo($curl);
 	$json   = json_decode($result, true);
-	
+
 	curl_close($curl);
 	logModuleCall("Sirportly", $action, $params, $result, $json);
 	return array('status' => $status_code['http_code'], 'results' => $json);
