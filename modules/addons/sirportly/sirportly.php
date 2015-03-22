@@ -38,21 +38,21 @@ function sirportly_activate() {
 	  UNIQUE KEY `id` (`id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;";
   $result = mysql_query($query);
-  
+
   mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'brand', '0');");
   mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'status', '0');");
   mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'priority', '0');");
-  
+
   ## v1.1
   mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'close_ticket', '0');");
   mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'closed_status', '0');");
-  
+
   return array('status'=>'success');
 }
 
 function sirportly_upgrade($vars){
   $version = $vars['version'];
-        
+
   if ($version < 1.1) {
     mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'close_ticket', '0');");
     mysql_query("INSERT INTO  `tbladdonmodules` (`module` ,`setting`, `value`) VALUES ('sirportly',  'closed_status', '0');");
@@ -62,65 +62,62 @@ function sirportly_upgrade($vars){
 function sirportly_deactivate() {
   $query = "DROP TABLE `sirportly`";
 	$result = mysql_query($query);
-	
+
 	$query = "DROP TABLE `sirportly_options`";
 	$result = mysql_query($query);
-	
+
 	$query = "DROP TABLE `sirportly_customers`";
 	$result = mysql_query($query);
-	
+
   return array('status'=>'success');
 }
 
-function sirportly_output($vars) 
+function sirportly_output($vars)
 {
   echo '
   <p>
     <strong>Options:</strong>
-    <a href="addonmodules.php?module=sirportly">Data Source</a> | 
-    <a href="addonmodules.php?module=sirportly&action=support">Support Tickets</a> | 
+    <a href="addonmodules.php?module=sirportly">Data Source</a> |
+    <a href="addonmodules.php?module=sirportly&action=support">Support Tickets</a> |
     <a href="addonmodules.php?module=sirportly&action=merge">Merge Contacts</a>
   </p>';
-  
+
+
+
   switch ($_GET['action']) {
     case 'merge':
-      
+
       if ($_POST) {
-        if (!$_POST['from'] or !$_POST['into'] or $_POST['from'] == $_POST['into']) {
+        if (!$_POST['from'] || !$_POST['into']) {
+          echo '<div class="errorbox"><strong>An Error Occured!</strong><br />Please select both a "from" and "to" contact.</div>';
+        } elseif(!$_POST['from'] or !$_POST['into'] or $_POST['from'] == $_POST['into']) {
           echo '<div class="errorbox"><strong>An Error Occured!</strong><br />You cannot merge contacts into themselves.</div>';
         } else {
-          $merge = sirportly_admin("/api/v1/customers/merge",$vars['token'],$vars['secret'], array('source_customer' => (int)$_POST['from'], 'destination_customer' => (int)$_POST['into']));
-          if ($merge['error']) {
-            echo '<div class="errorbox"><strong>An Error Occured!</strong><br />'.$merge['message'].'</div>';
+          $merge = sirportly_merge_contacts($_POST['from'], $_POST['into']);
+          if ($merge['status'] != 200) {
+            echo '<div class="errorbox"><strong>An Error Occured!</strong><br />'.$merge['results']['error'].'</div>';
           }else{
             echo '<div class="infobox"><strong>Success!</strong><br />Successfully merged the contacts.</div>';
           }
         }
       }
-    
-      $sirportly_contacts = sirportly_admin('/api/v1/customers/all',$vars['token'],$vars['secret']);
-      $contacts           = array();
-      $page               = 0;
-      
-      for ($page = 1; $page <= $sirportly_contacts['pagination']['pages']; $page++) {
-        $sp_contacts = sirportly_admin('/api/v1/customers/all',$vars['token'],$vars['secret'], array('page' => $page));
-        foreach ($sp_contacts['records'] as $key => $value) {
-          $contacts[] = $value;
-        }
-      }
+
+      $sirportly_contacts = sirportly_contacts();
       $whmcs_contacts     = full_query("SELECT sc.customerid, wc.firstname, wc.lastname, wc.email FROM sirportly_customers sc  LEFT JOIN tblclients wc ON sc.userid = wc.id");
+
+
       echo '
         <form method="POST" action="addonmodules.php?module=sirportly&action=merge">
           <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">
             <tr>
               <td width="100px" class="fieldlabel">Merge</td>
               <td class="fieldarea" width="100px"><select name="from">';
-                foreach ($contacts as $key => $value) {
+                foreach ($sirportly_contacts as $key => $value) {
                   echo '<option'.($value['id'] == $_POST['from'] ? ' selected=selected':'').' value="'.$value['id'].'">'.$value['name'].' ('.$value['id'].')</option>';
                 }
       echo '
              </select> </td>
-             
+
              <td width="50px" class="fieldlabel">in to</td>
              <td class="fieldarea"width="100px"><select name="into">';
                while ($contact = mysql_fetch_array($whmcs_contacts, MYSQL_ASSOC)) {
@@ -129,18 +126,18 @@ function sirportly_output($vars)
      echo '
             </select> </td>
             </tr></table>
-            
+
             <p align="center"><input type="submit" value="Merge Contacts" /></p>
             </form>';
-      
-      
+
+
     break;
     case 'support':
      if (!$vars['token'] || !$vars['secret']) {
       echo '<div class="errorbox"><strong>An Error Occured!</strong><br />Please enter your API Token and/or Secret.</div>';
       return;
     }
-           
+
     if ($_POST){
       update_query('tbladdonmodules',array('value' => $_POST['brand']), array('module'=>'sirportly', 'setting' => 'brand'));
       update_query('tbladdonmodules',array('value' => $_POST['status']), array('module'=>'sirportly', 'setting' => 'status'));
@@ -149,13 +146,13 @@ function sirportly_output($vars)
       update_query('tbladdonmodules',array('value' => $_POST['closed_status']), array('module'=>'sirportly', 'setting' => 'closed_status'));
       echo '<div class="successbox"><strong>Success!</strong><br />Changes saved successfully.</div>';
     }
-     
+
     $sirportly_settings = sirportly_settings();
     $brands = sirportly_brands($vars['token'],$vars['secret']);
     $status = sirportly_status($vars['token'],$vars['secret']);
     $priority = sirportly_priorities($vars['token'],$vars['secret']);
-     
-      
+
+
 echo '<p>By selecting a brand below all tickets opened via the client area will be submitted to Sirportly, <strong><u>NOT</u></strong> WHMCS, keep "Disabled" selected if you want to keep tickets within WHMCS.</p>
   <form method="POST" action="addonmodules.php?module=sirportly&action=support">
     <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">
@@ -168,7 +165,7 @@ echo '<p>By selecting a brand below all tickets opened via the client area will 
 echo '
        </select> </td>
       </tr>
-      
+
       <tr>
         <td width="20%" class="fieldlabel">New Ticket Status</td>
         <td class="fieldarea"><select name="status">';
@@ -178,21 +175,21 @@ echo '
 
 echo '</select></td>
       </tr>
-      
+
       <tr>
         <td width="20%" class="fieldlabel">Default Ticket Priority</td>
         <td class="fieldarea"><select name="priority">';
           foreach ($priority as $key => $value) {
             echo '<option'.($sirportly_settings['priority'] == $value['id'] ? ' selected=selected':'').' value="'.$value['id'].'">'.$value['name'] .'</option>';
           }
-          
+
 echo ' </select></td>
       </tr>
       <tr>
         <td width="20%" class="fieldlabel">Allow Clients to Close Tickets</td>
         <td class="fieldarea"><select name="close_ticket">
           <option'.($sirportly_settings['close_ticket'] == '1' ? ' selected=selected':'').' value="1">Yes</option>
-          <option'.($sirportly_settings['close_ticket'] == '0' ? ' selected=selected':'').' value="0">No</option>         
+          <option'.($sirportly_settings['close_ticket'] == '0' ? ' selected=selected':'').' value="0">No</option>
           </select>
         </td>
       </tr>
@@ -201,17 +198,17 @@ echo ' </select></td>
         <td class="fieldarea"><select name="closed_status">';
           foreach ($status as $key => $value) {
             echo '<option'.($sirportly_settings['closed_status'] == $key ? ' selected=selected':'').' value="'.$key.'">'.$value.'</option>';
-          } 
+          }
         echo '</select></td>
       </tr>
     </table>
     <p align="center"><input type="submit" value="Save Changes" /></p>
   </form>';
-    
+
     break;
-    
+
     default:
-      
+
       if ($_POST) {
         unset($_POST['token']);
         mysql_query('TRUNCATE TABLE `sirportly`');
@@ -238,12 +235,12 @@ echo ' </select></td>
           $fields[$value][$row[0]] = $row[0];
         }
       }
-      
+
       unset($fields['tblclients']['email'],$fields['tblclients']['pwresetexpiry'],$fields['tblclients']['pwresetkey'],$fields['tbldomains']['userid'],$fields['tblhosting']['userid']);
       unset($fields['tblinvoices']['userid']);
       unset($fields['tblclients']['password']);
-      
-      
+
+
       echo '<form method="POST" action="addonmodules.php?module=sirportly">
       <table class="form" width="100%" border="0" cellspacing="2" cellpadding="3">
         <tr>';
@@ -260,10 +257,10 @@ echo ' </select></td>
           echo '</td></tr>';
       }
       echo '</table><p align="center"><input type="submit" value="Save Changes" /></p></form>';
-      
+
     break;
   }
-  
+
 
 }
 
@@ -273,7 +270,7 @@ function sirportly_lang($text){
     case 'tbldomains': return 'Domain'; break;
     case 'tblhosting': return 'Service'; break;
     case 'tblinvoices': return 'Invoice'; break;
-    
+
     case 'id': return 'ID'; break;
     case 'firstname': return 'First Name'; break;
     case 'lastname': return 'Last Name'; break;
@@ -359,14 +356,14 @@ function sirportly_lang($text){
     case 'ns2': return 'Nameserver Two'; break;
     case 'diskusage': return 'Disk Usage'; break;
     case 'disklimit': return 'Disk Limit'; break;
-    case 'bwlimit': return 'Bandwidth Limit'; break;    
-    case 'bwusage': return 'Bandwidth Usage'; break;    
-    case 'lastupdate': return 'Last Update'; break;    
-    case 'total': return 'Total'; break;    
-    case 'taxrate': return 'Tax Rate'; break;    
-    case 'taxrate2': return 'Tax Rate 2'; break; 
+    case 'bwlimit': return 'Bandwidth Limit'; break;
+    case 'bwusage': return 'Bandwidth Usage'; break;
+    case 'lastupdate': return 'Last Update'; break;
+    case 'total': return 'Total'; break;
+    case 'taxrate': return 'Tax Rate'; break;
+    case 'taxrate2': return 'Tax Rate 2'; break;
     case 'defaultgateway': return 'Default Gateway'; break;
-    
+
     default: return '<i>'.$text.'</i>'; break;
   }
 }
