@@ -15,7 +15,10 @@
 
   ## The ID of your `resolved` ticket status, set to false to prevent
   ## clients from closing tickets
-  $closedStatusId = 4;
+  $closedStatusId = 1;
+
+  ## The ID of your `new` ticket status
+  $newStatusId = 1;
 
   ## The default WHMCS behaviour is to allow sub accounts access
   ## to view tickets that were opened by the primary contact, set
