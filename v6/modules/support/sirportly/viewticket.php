@@ -7,7 +7,6 @@
  */
 
   use WHMCS\ClientArea;
-  use Illuminate\Database\Capsule\Manager as Capsule;
 
   define("CLIENTAREA", true);
 
@@ -29,38 +28,48 @@
   $response = _doSirportlyAPICall('tickets/ticket', array('reference' => $tid));
 
   ## Fetch an array of sirportly contact_ids
-  $contact_ids = sirportlyContacts($_SESSION['uid']);
+  $contact_ids = sirportlyContacts($_SESSION['uid'], $_SESSION['cid']);
 
-  ## Check to ensure the ticket exists, that the ID matches and the user has access
-  if (array_key_exists('error', $response) || $response['id'] != $c || !in_array($response['contact']['id'], $contact_ids)) {
+  ## Check to see if we encountered any errors
+  checkForSirportlyErrors($response, array('ca' => $ca), function($ca){
+    $ca->assign('invalidTicketId', true);
+    $ca->output();
+    return;
+  });
+
+  ## Check to ensure that the ID matches and the user has access
+  if ($response['id'] != $c || !in_array($response['contact']['id'], $contact_ids)) {
     $ca->assign('invalidTicketId', true);
     $ca->output();
     return;
   }
 
-  class Named_Cart extends WHMCS\View\Client\Menu\PrimarySidebarFactory {
-    function sirportlyTicketView() {
-    }
-  }
-
-  ## Setup the menu contexts
+  ## Setup the menus
   Menu::addContext('sirportlyTicket', $response);
-  Menu::addContext('ticketId', 1);
-  Menu::addContext('c', $c);
   Menu::addContext('support_module', 'sirportly');
-
-  Menu::primarySidebar( 'ticketView' );
-  Menu::secondarySidebar( 'ticketView' );
 
   ## Download an attachment
   if ($action == "attachment") {
-    $attachment = _doSirportlyAPICall('tickets/attachment', array('ticket' => $tid, 'attachment' => $_GET['aid']));
-    echo $attachment;
+    $ticketUpdate   = _doSirportlyAPICall('ticket_updates/info', array('ticket' => $tid, 'update' => $_GET['id']));
+    $attachmentData = _doSirportlyAPICall('tickets/attachment', array('ticket' => $tid, 'attachment' => $_GET['aid']), false);
 
+    ## Locate the details for the attachment
+    foreach ($ticketUpdate['attachments'] as $attachment) {
+      if ($attachment['id'] == $_GET['aid']) {
+        $attachmentDetails = $attachment;
+      }
+    }
+
+    header("Content-Disposition: attachment; filename=\"{$attachmentDetails['name']}\"");
+    header("Content-Type: {$attachmentDetails['content_type']}");
+    header("Content-Length: " . strlen($attachmentData));
+    header("Connection: close");
+    echo $attachmentData;
     exit();
   }
 
-  $sirportlyContact = sirportlyContact($_SESSION['uid'], $_SESSION['cid']);
+  ## Load the Sirportly contact
+  $sirportlyContact = findOrCreateSirportlyContact($_SESSION['uid'], $_SESSION['cid']);
 
   ## Close the ticket
   if ($closeticket && $closedStatusId) {
@@ -71,12 +80,13 @@
       )
     );
 
-    if (array_key_exists('errors', $response)) {
-      $formattedErrorMessages = formatSirportlyErrors($response['errors']);
+    ## Check to see if we encountered any errors
+    checkForSirportlyErrors($response, array('ca' => $ca, 'tid' => $tid, 'c' => $c, $update => $response), function($ca, $tid, $c, $update){
+      $formattedErrorMessages = formatSirportlyErrors($update['errors']);
       $ca->assign('errormessage', $formattedErrorMessages);
-    } else {
+    }, function($ca, $tid, $c){
       redir("tid=" . $tid . "&c=" . $c);
-    }
+    });
   }
 
   ## Add an update to the ticket
@@ -87,44 +97,30 @@
       $errormessage .= "<li>" . $_LANG['supportticketserrornomessage'];
     }
 
+    $ca->assign('postingReply', isset($postreply));
+    $ca->assign('errormessage', $errormessage);
+
     ## If we're error free attempt to submit the update to Sirportly
     if (!$errormessage) {
       ## Upload any attachments and store their tokens
       $attachedFiles = sirportly_upload_attachments($_FILES['attachments']);
 
       ## Submit the update
-      $params = array();
-      $params['ticket']      = $tid;
-      $params['message']     = $replymessage;
-      $params['attachments'] = implode($attachedFiles);
+      $sirportlyTicketUpdate = _doSirportlyAPICall('tickets/post_update', array(
+        'ticket'      => $tid,
+        'message'     => $replymessage,
+        'attachments' => implode($attachedFiles),
+        'contact'     => $sirportlyContact
+      ));
 
-      if (!empty($sirportlyContact)) {
-        $params['contact'] = $sirportlyContact;
-      } else {
-        $params['contact_name']        = $clientDetails['fullname'];
-        $params['contact_method_data'] = $clientDetails['email'];
-        $params['contact_method_type'] = 'email';
-      }
-
-      $sirportlyTicketUpdate = _doSirportlyAPICall('tickets/post_update', $params);
-
-      ## Check for any errors
-      if (array_key_exists('errors', $sirportlyTicketUpdate)) {
-        $formattedErrorMessages = formatSirportlyErrors($sirportlyTicketUpdate['errors']);
+      ## Check to see if we encountered any errors
+      checkForSirportlyErrors($sirportlyTicketUpdate, array('ca' => $ca, 'tid' => $tid, 'c' => $c, $update => $sirportlyTicketUpdate), function($ca, $tid, $c, $update){
+        $formattedErrorMessages = formatSirportlyErrors($update['errors']);
         $ca->assign('errormessage', $formattedErrorMessages);
-      } else {
-
-        ## Check to see if we need to store the contact_id
-        if (empty($sirportlyContact)) {
-          sirportlyStoreContact($_SESSION['uid'], $_SESSION['cid'], $sirportlyTicketUpdate['contact']['id']);
-        }
+      }, function($ca, $tid, $c){
         redir("tid=" . $tid . "&c=" . $c);
-      }
+      });
     }
-
-    $ca->assign('postingReply', isset($postreply));
-    $ca->assign('errormessage', $errormessage);
-
   }
 
   ## Setup the updates
@@ -137,19 +133,21 @@
       $attachments[] = array('id' => $attachment['id'], 'name' => $attachment['name']);
     }
 
+    ## Locate the update author type
+    $sirportlyUpdateAuthor = locateSirportlyUpdateAuthor($update['author']['id']);
+
     $updates[] = array(
       'id'          => $update['id'],
       'admin'       => $update['author']['type'] == 'User',
       'date'        => fromMySQLDate($update['posted_at'], true, true),
       'name'        => $update['from_name'],
-      'contactid'   => null,
-      'userid'      => '1',
+      'contactid'   => $sirportlyUpdateAuthor['contact_id'],
+      'userid'      => $sirportlyUpdateAuthor['user_id'],
       'message'     => nl2br($update['message']),
       'attachments' => $attachments
     );
   }
 
-  $smarty->assign("ascreplies", $updates);
   krsort($updates);
   $smarty->assign("descreplies", $updates);
   $ca->assign("c", $c);

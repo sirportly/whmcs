@@ -1,6 +1,6 @@
 <?PHP
 
-function _doSirportlyAPICall($method, $postfields=array())
+function _doSirportlyAPICall($method, $postfields=array(), $jsonDecode=true)
 {
   ## Include the configuration
   include("config.php");
@@ -27,7 +27,11 @@ function _doSirportlyAPICall($method, $postfields=array())
   $result = curl_exec ($ch);
 
   ## Decode the response
-  $return  = json_decode($result, true);
+  if ($jsonDecode) {
+    $return  = json_decode($result, true);
+  } else {
+    $return  = $result;
+  }
 
   ## Log the API call
   logModuleCall('Sirportly', $method, $postfields, $result, $return);
@@ -41,7 +45,6 @@ function sirportlyCustomFields($department, $params)
   include("config.php");
   $returnArray = array();
   $custom_fields = _doSirportlyAPICall('objects/custom_fields', array('department' => $department));
-  print_r($custom_fields);
   foreach ($custom_fields as $custom_field) {
 
     ## Reset the HTML for each field
@@ -85,17 +88,13 @@ function sirportlyCustomFields($department, $params)
         foreach ($options as $option) {
           $option = preg_replace("/[^0-9]/", "", $option);
           $selected = $option == $value ? 'checked=checked' : '';
-          $html .= "<div class='radio'><label><input type='radio' name='customfield[" . $custom_field['system_name'] . "]' value='" . $option . "'>" . $option . "</label></div>";
+          $html .= "<div class='radio'><label><input type='radio' name='customfield[" . $custom_field['system_name'] . "]' value='" . $option . "' " . $selected . ">" . $option . "</label></div>";
         }
       break;
 
       case 'checkbox':
-        $options = preg_split ('/$\R?^/m', $custom_field['values']);
-        foreach ($options as $option) {
-          $option = preg_replace("/[^0-9]/", "", $option);
-          $selected = $option == $value ? 'checked=checked' : '';
-          $html .= "<div class='checkbox'><label><input type='checkbox' name='customfield[" . $custom_field['system_name'] . "][]' value='" . $option . "'>" . $option . "</label></div>";
-        }
+        $checked = $option == $value ? 'checked=checked' : '';
+        $html .= "<div class='checkbox'><label><input type='hidden' name='customfield[" . $custom_field['system_name'] . "]' value='0'><input type='checkbox' name='customfield[" . $custom_field['system_name'] . "]' value='1'></label></div>";
       break;
     }
     $returnArray[] = array('name' => $custom_field['name'], 'description' => $custom_field['description'], 'input' => $html);
@@ -103,23 +102,42 @@ function sirportlyCustomFields($department, $params)
   return $returnArray;
 }
 
-function sirportlyContacts($uid)
+function locateSirportlyUpdateAuthor($sirportlyContactID)
 {
-  $result = select_query('sirportly_contacts', 'sirportly_id', array('user_id' => $uid));
-  $sirportly_ids = array();
-  while ($row = mysql_fetch_array($result, MYSQL_NUM)) {
-    $sirportly_ids[] = $row[0];
-  }
-  return array_values(array_unique($sirportly_ids));
+  $result = get_query_vals('sirportly_contacts', '*', array('sirportly_id' => $sirportlyContactID), "",  'sirportly_id', 1);
+  return array('contact_id' => $result['contact_id'], 'user_id' => $result['user_id']);
 }
 
-function sirportlyTickets()
+function sirportlyContacts($uid, $cid)
+{
+
+  ## Include the configuration
+  include("config.php");
+
+  if ($canOnlyViewOwnTickets) {
+    $return[] = findOrCreateSirportlyContact($uid, $cid);
+  } else {
+    $result = select_query('sirportly_contacts', 'sirportly_id', array('user_id' => $uid));
+    while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
+      $return[] = $row[sirportly_id];
+    }
+  }
+
+  return $return;
+}
+
+function sirportlyTickets($contacts)
 {
   ## Include the configuration
   include("config.php");
 
-  ## Start the base query
-  $query = "SELECT tickets.id, tickets.reference, tickets.subject, tickets.last_update_posted_at, department.name, status.colour, status.name, status.status_type FROM tickets WHERE contact.id = '18'";
+  ## Start the query
+  $query = "SELECT tickets.id, tickets.reference, tickets.subject, tickets.last_update_posted_at, department.name, status.colour, status.name, status.status_type FROM tickets WHERE brand.id = {$BrandId} AND (";
+
+  foreach ($contacts as $contact) {
+    $criteria[] = "contact.id" . " = '" . $contact . "'";
+  }
+  $query .= implode(" OR ", $criteria) . ")";
 
   ## Run the query
   $result = _doSirportlyAPICall('tickets/spql', array('spql' => $query));
@@ -128,7 +146,7 @@ function sirportlyTickets()
   return $result;
 }
 
-function sirportlyStoreContact($uid, $cid, $sirportly_id)
+function storeSirportlyContact($uid, $cid, $sirportly_id)
 {
   insert_query('sirportly_contacts',
     array(
@@ -139,18 +157,90 @@ function sirportlyStoreContact($uid, $cid, $sirportly_id)
   );
 }
 
-function sirportlyContact($uid, $cid)
+function findOrCreateSirportlyContact($uid, $cid)
 {
-  $response = get_query_val('sirportly_contacts', 'sirportly_id', array('user_id' => $uid));
-  return $response;
+  ## Setup the query
+  $user_query   = ($uid === null) ? 'is NULL' : "= '{$uid}'";
+  $client_query = ($cid === null) ? 'is NULL' : "= '{$cid}'";
+
+  $query = full_query("SELECT `sirportly_id` FROM `sirportly_contacts` WHERE `user_id` {$user_query} AND `contact_id` {$client_query}");
+  $result = mysql_fetch_array($query, MYSQL_ASSOC);
+
+  if (empty($result['sirportly_id'])) {
+
+    ## Fetch the client details
+    $clientDetails = getClientsDetails($uid, $cid);
+
+    ## Attempt to search Sirportly for the contact
+    $contactSearch = _doSirportlyAPICall('contacts/search', array(
+      'query' => $clientDetails['email'],
+      'types' => 'email',
+      'limit' => '1'
+    ));
+
+    ## Check to see if we encountered any errors
+    checkForSirportlyErrors($contactSearch, array(), function(){
+      die('Unable to create Sirportly contact');
+    });
+
+    if (empty($contactSearch)) {
+      ## Attempt to create the contact
+      $createSirportlyContact = _doSirportlyAPICall('contacts/create', array(
+        'name'    => $clientDetails['fullname'],
+        'company' => $clientDetails['company']
+      ));
+
+      ## Check to see if we encountered any errors
+      checkForSirportlyErrors($createSirportlyContact, array(), function(){
+        die('Unable to create Sirportly contact');
+      });
+
+      ## Attempt to create the contact method
+      $createSirportlyContactMethod = _doSirportlyAPICall('contacts/add_contact_method', array(
+        'contact'     => $createSirportlyContact['id'],
+        'method_type' => 'email',
+        'data'        => $clientDetails['email']
+      ));
+
+      ## Check to see if we encountered any errors
+      checkForSirportlyErrors($createSirportlyContactMethod, array(), function(){
+        die('Unable to create Sirportly contact method');
+      });
+
+      ## Store the Sirportly contact ID for future
+      storeSirportlyContact($uid, $cid, $createSirportlyContact['id']);
+
+      ## Return the contact id
+      return $createSirportlyContact['id'];
+    } else {
+      ## Store the Sirportly contact ID for future
+      storeSirportlyContact($uid, $cid, $contactSearch['0']['contact']['id']);
+
+      ## Return the contact id
+      return $contactSearch['0']['contact']['id'];
+    }
+
+    ## If we got here something seriously went wrong
+    die('Contact doesn\'t exist');
+  } else {
+    ## Return the contact id
+    return $result['sirportly_id'];
+  }
+}
+
+function checkForSirportlyErrors($output, $args=array(), $failure_function, $success_function)
+{
+  if (array_key_exists('error', $output) || array_key_exists('errors', $output)) {
+    call_user_func_array($failure_function, $args);
+  } elseif(is_callable($success_function)) {
+    call_user_func_array($success_function, $args);
+  }
 }
 
 function formatSirportlyErrors($errors=array()) {
   $output = '';
   foreach ($errors as $key => $value) {
-    $function = is_array($value) ? __FUNCTION__ : 'htmlspecialchars';
-    $key = preg_replace("/_id$/", "", ucfirst($key) );
-    $output .= '<li>' . $key . ' ' . $function($value) . '</li>';
+    $output .= "<li>".preg_replace("/_id$/", "", ucfirst($key) )." ".$value['0']."</li>";
   }
   return $output;
 }

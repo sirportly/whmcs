@@ -127,7 +127,7 @@
                     <strong>{$LANG.supportticketsticketattachments} ({$reply.attachments|count})</strong>
                     <ul>
                         {foreach from=$reply.attachments key=num item=attachment}
-                            <li><i class="fa fa-file-o"></i> <a href="{$smarty.server.PHP_SELF}?action=attachment&amp;tid={$tid}&amp;c={$c}&amp;aid={$attachment.id}">{$attachment.name}</a></li>
+                            <li><i class="fa fa-file-o"></i> <a href="{$smarty.server.PHP_SELF}?action=attachment&amp;tid={$tid}&amp;c={$c}&amp;id={$reply.id}&amp;aid={$attachment.id}">{$attachment.name}</a></li>
                         {/foreach}
                     </ul>
                 </div>

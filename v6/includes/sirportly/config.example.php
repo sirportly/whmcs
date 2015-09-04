@@ -1,18 +1,23 @@
 <?php
 
-  // Base URL
-  $baseUrl = 'https://sirportly.com';
+  ## The URL of your Sirportly installation staff interface
+  $baseUrl = 'https://example.sirportly.com';
 
-  // API Token
+  ## The API token to use when talking to Sirportly
   $apiToken = '';
 
-  // API Secret
+  ## The API secret to use when talking to Sirportly
   $apiSecret = '';
 
-  // Brand
-  $BrandId = '';
+  ## The ID of the brand which this WHMCS installation should be
+  ## linked to, this value determines which departments to show
+  $BrandId = 1;
 
-  # The ID of your 'resolved' ticket status, set to false to prevent clients from closing tickets
+  ## The ID of your `resolved` ticket status, set to false to prevent
+  ## clients from closing tickets
   $closedStatusId = 4;
 
-?>
+  ## The default WHMCS behaviour is to allow sub accounts access
+  ## to view tickets that were opened by the primary contact, set
+  ## this option to false to keep this behaviour.
+  $canOnlyViewOwnTickets = false;

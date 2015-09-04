@@ -12,6 +12,12 @@
   if (App::getCurrentFilename() == 'submitticket') {
     add_hook('ClientAreaFooterOutput', 1, function ($vars)
     {
+
+      ## Check to ensure the Sirportly support module is in use
+      if (!Menu::Context('support_module') == 'sirportly') {
+        return;
+      }
+
       return '<script>
           function refreshCustomFields(input) {
             jQuery("#customFieldsContainer").load(
@@ -35,7 +41,7 @@
         return;
       }
 
-      ## Assign the context
+      ## Fetch the ticket
       $sirportlyTicket = Menu::Context('sirportlyTicket');
 
       $supportPanel = $primarySidebar->addChild('Ticket Information', array(
