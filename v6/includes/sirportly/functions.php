@@ -47,6 +47,11 @@ function sirportlyCustomFields($department, $params)
   $custom_fields = _doSirportlyAPICall('objects/custom_fields', array('department' => $department));
   foreach ($custom_fields as $custom_field) {
 
+    ## Don't show private fields
+    if ($custom_field['private']) {
+      continue;
+    }
+
     ## Reset the HTML for each field
     $html = "";
 
