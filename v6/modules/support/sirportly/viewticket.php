@@ -31,11 +31,11 @@
   $contact_ids = sirportlyContacts($_SESSION['uid'], $_SESSION['cid']);
 
   ## Check to see if we encountered any errors
-  checkForSirportlyErrors($response, array('ca' => $ca), function($ca){
+  if ( checkForSirportlyErrors($response) ) {
     $ca->assign('invalidTicketId', true);
     $ca->output();
     return;
-  });
+  }
 
   ## Check to ensure that the ID matches and the user has access
   if ($response['id'] != $c || !in_array($response['contact']['id'], $contact_ids)) {
@@ -81,12 +81,12 @@
     );
 
     ## Check to see if we encountered any errors
-    checkForSirportlyErrors($response, array('ca' => $ca, 'tid' => $tid, 'c' => $c, $update => $response), function($ca, $tid, $c, $update){
+    if ( checkForSirportlyErrors($response) ) {
       $formattedErrorMessages = formatSirportlyErrors($update['errors']);
       $ca->assign('errormessage', $formattedErrorMessages);
-    }, function($ca, $tid, $c){
+    } else {
       redir("tid=" . $tid . "&c=" . $c);
-    });
+    }
   }
 
   ## Add an update to the ticket
@@ -114,12 +114,12 @@
       ));
 
       ## Check to see if we encountered any errors
-      checkForSirportlyErrors($sirportlyTicketUpdate, array('ca' => $ca, 'tid' => $tid, 'c' => $c, $update => $sirportlyTicketUpdate), function($ca, $tid, $c, $update){
+      if ( checkForSirportlyErrors($sirportlyTicketUpdate) ) {
         $formattedErrorMessages = formatSirportlyErrors($update['errors']);
         $ca->assign('errormessage', $formattedErrorMessages);
-      }, function($ca, $tid, $c){
+      } else {
         redir("tid=" . $tid . "&c=" . $c);
-      });
+      }
     }
   }
 

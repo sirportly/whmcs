@@ -86,14 +86,14 @@
       $sirportlyTicket = _doSirportlyAPICall('tickets/submit', $params);
 
       ## Check to see if we encountered any errors
-      checkForSirportlyErrors($sirportlyTicket, array('ca' => $ca, 'ticket' => $sirportlyTicket), function($ca, $ticket){
+      if ( checkForSirportlyErrors($sirportlyTicket) ) {
         $step = 2;
         $formattedErrorMessages = formatSirportlyErrors($ticket['errors']);
         $ca->assign('errormessage', $formattedErrorMessages);
         $ca->setTemplate('/templates/sirportly/supportticketsubmit-steptwo.tpl');
         $ca->output();
         return;
-      });
+      }
 
       ## Add the first update
       $sirportlyTicketUpdate = _doSirportlyAPICall('tickets/post_update', array(

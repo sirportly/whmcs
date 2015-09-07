@@ -184,9 +184,9 @@ function findOrCreateSirportlyContact($uid, $cid)
     ));
 
     ## Check to see if we encountered any errors
-    checkForSirportlyErrors($contactSearch, array(), function(){
+    if ( checkForSirportlyErrors($contactSearch) ){
       die('Unable to create Sirportly contact');
-    });
+    }
 
     if (empty($contactSearch)) {
       ## Attempt to create the contact
@@ -196,9 +196,9 @@ function findOrCreateSirportlyContact($uid, $cid)
       ));
 
       ## Check to see if we encountered any errors
-      checkForSirportlyErrors($createSirportlyContact, array(), function(){
+      if ( checkForSirportlyErrors($createSirportlyContact) ){
         die('Unable to create Sirportly contact');
-      });
+      }
 
       ## Attempt to create the contact method
       $createSirportlyContactMethod = _doSirportlyAPICall('contacts/add_contact_method', array(
@@ -208,9 +208,9 @@ function findOrCreateSirportlyContact($uid, $cid)
       ));
 
       ## Check to see if we encountered any errors
-      checkForSirportlyErrors($createSirportlyContactMethod, array(), function(){
+      if ( checkForSirportlyErrors($createSirportlyContactMethod) ) {
         die('Unable to create Sirportly contact method');
-      });
+      }
 
       ## Store the Sirportly contact ID for future
       storeSirportlyContact($uid, $cid, $createSirportlyContact['id']);
@@ -233,12 +233,12 @@ function findOrCreateSirportlyContact($uid, $cid)
   }
 }
 
-function checkForSirportlyErrors($output, $args=array(), $failure_function, $success_function)
+function checkForSirportlyErrors($output)
 {
-  if (array_key_exists('error', $output) || array_key_exists('errors', $output)) {
-    call_user_func_array($failure_function, $args);
-  } elseif(is_callable($success_function)) {
-    call_user_func_array($success_function, $args);
+  if (array_key_exists('error', $output) || array_key_exists('errors', $output)){
+    return true;
+  } else {
+    return false;
   }
 }
 
