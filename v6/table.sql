@@ -1,7 +1,6 @@
 -- ----------------------------
 --  Table structure for `sirportly_contacts`
 -- ----------------------------
-DROP TABLE IF EXISTS `sirportly_contacts`;
 CREATE TABLE `sirportly_contacts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) DEFAULT NULL,
