@@ -33,6 +33,50 @@
       ## Return the variables
       return $vars;
     });
+
+    add_hook('ClientAreaHomepagePanels', 1, function (MenuItem $homePagePanels)
+    {
+      ## Locate "Recent Support Tickets" panel
+      $supportTickets = $homePagePanels->getChild('Recent Support Tickets');
+
+      ## Ensure we've found the panel, return if we don't
+      if (is_null($supportTickets)) {
+        return;
+      }
+
+      ## Load the sirportly contact
+      $sirportlyContact = findOrCreateSirportlyContact($_SESSION['uid'], $_SESSION['cid']);
+
+      ## Fetch an array of sirportly contact_ids
+      $contact_ids = sirportlyContacts($_SESSION['uid'], $_SESSION['cid']);
+
+      ## Fetch the tickets
+      $sirportlyTickets = sirportlyTickets($contact_ids);
+
+      ## Count the tickets
+      $sirportlyTicketCount = count($sirportlyTickets['results']);
+
+      ## Fetch the 5 latest tickets
+      $latestSirportlyTickets = array_slice($sirportlyTickets['results'], 0, 5, true);
+
+      ## Clear the contents of the panel
+      $supportTickets->setBodyHtml('');
+
+      ## Check to see if we have any Sirportly tickets to display
+      if ($sirportlyTicketCount > 0) {
+        ## Loop through each of the tickets
+        foreach ($latestSirportlyTickets as $key => $ticket) {
+          $date = fromMySQLDate($ticket[3], true, true);
+
+          $child = $supportTickets->addChild("<strong>#{$ticket[1]} - {$ticket[2]}</strong></br><small>Last Updated: {$date}</small>", array(
+            'uri' => "viewticket.php?tid={$ticket[1]}&c={$ticket[0]}",
+          ));
+        }
+      } else {
+        ## Display the "No Recent Tickets Found" message
+        $child = $supportTickets->addChild("No Recent Tickets Found. If you need any help, please open a ticket.", array());
+      }
+    });
   }
 
   ## This doesn't deserve to live here
