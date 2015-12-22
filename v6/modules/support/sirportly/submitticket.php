@@ -60,6 +60,9 @@
   $ca->assign("subject", $subject);
   $ca->assign("message", $message);
 
+  $ca->assign("captcha", $captcha);
+  $ca->assign("recapatchahtml", clientAreaReCaptchaHTML());
+
   switch ($step) {
     case '2':
       $ca->setTemplate('/templates/sirportly/supportticketsubmit-steptwo.tpl');
