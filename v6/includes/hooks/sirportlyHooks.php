@@ -8,6 +8,33 @@
 
   use WHMCS\View\Menu\Item as MenuItem;
 
+  include_once(ROOTDIR . "/includes/sirportly/config.php");
+  include_once(ROOTDIR . "/includes/sirportly/functions.php");
+
+  if (App::getCurrentFilename() == 'clientarea') {
+    add_hook('ClientAreaPage', 1, function ($vars)
+    {
+      ## Load the sirportly contact
+      $sirportlyContact = findOrCreateSirportlyContact($_SESSION['uid'], $_SESSION['cid']);
+
+      ## Fetch an array of sirportly contact_ids
+      $contact_ids = sirportlyContacts($_SESSION['uid'], $_SESSION['cid']);
+
+      ## Fetch the tickets
+      $sirportlyTickets = sirportlyTickets($contact_ids);
+
+      ## Count the tickets
+      $sirportlyTicketCount = count($sirportlyTickets['results']);
+
+      ## Set the ticket count
+      $vars['clientsstats']['numtickets'] = $sirportlyTicketCount;
+      $vars['clientsstats']['numactivetickets'] = $sirportlyTicketCount;
+
+      ## Return the variables
+      return $vars;
+    });
+  }
+
   ## This doesn't deserve to live here
   if (App::getCurrentFilename() == 'submitticket') {
     add_hook('ClientAreaFooterOutput', 1, function ($vars)
