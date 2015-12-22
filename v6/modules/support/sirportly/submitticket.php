@@ -12,7 +12,7 @@
 
   ## Required files
   require_once(ROOTDIR . "/includes/sirportly/functions.php");
-  include_once(ROOTDIR . "/includes/sirportly/config.php");
+  include(ROOTDIR . "/includes/sirportly/config.php");
 
   $ca = new ClientArea();
   $ca->setPageTitle($_LANG['supportticketssubmitticket']);
