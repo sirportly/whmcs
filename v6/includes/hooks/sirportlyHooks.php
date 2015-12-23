@@ -14,24 +14,26 @@
   if (App::getCurrentFilename() == 'clientarea') {
     add_hook('ClientAreaPage', 1, function ($vars)
     {
-      ## Load the sirportly contact
-      $sirportlyContact = findOrCreateSirportlyContact($_SESSION['uid'], $_SESSION['cid']);
+      if (isset($_SESSION['uid'])) {
+        ## Load the sirportly contact
+        $sirportlyContact = findOrCreateSirportlyContact($_SESSION['uid'], $_SESSION['cid']);
 
-      ## Fetch an array of sirportly contact_ids
-      $contact_ids = sirportlyContacts($_SESSION['uid'], $_SESSION['cid']);
+        ## Fetch an array of sirportly contact_ids
+        $contact_ids = sirportlyContacts($_SESSION['uid'], $_SESSION['cid']);
 
-      ## Fetch the tickets
-      $sirportlyTickets = sirportlyTickets($contact_ids);
+        ## Fetch the tickets
+        $sirportlyTickets = sirportlyTickets($contact_ids);
 
-      ## Count the tickets
-      $sirportlyTicketCount = count($sirportlyTickets['results']);
+        ## Count the tickets
+        $sirportlyTicketCount = count($sirportlyTickets['results']);
 
-      ## Set the ticket count
-      $vars['clientsstats']['numtickets'] = $sirportlyTicketCount;
-      $vars['clientsstats']['numactivetickets'] = $sirportlyTicketCount;
+        ## Set the ticket count
+        $vars['clientsstats']['numtickets'] = $sirportlyTicketCount;
+        $vars['clientsstats']['numactivetickets'] = $sirportlyTicketCount;
 
-      ## Return the variables
-      return $vars;
+        ## Return the variables
+        return $vars;
+      }
     });
 
     add_hook('ClientAreaHomepagePanels', 1, function (MenuItem $homePagePanels)
