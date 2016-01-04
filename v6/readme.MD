@@ -1,4 +1,4 @@
-## Sirportly & WHMCS Integration
+## Sirportly & WHMCS Integration v6 (BETA)
 
 This module is designed to allow clients to open, view and reply to tickets in Sirportly without having to leave WHMCS.
 
