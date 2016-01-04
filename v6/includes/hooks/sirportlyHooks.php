@@ -61,8 +61,10 @@
       ## Fetch the 5 latest tickets
       $latestSirportlyTickets = array_slice($sirportlyTickets['results'], 0, 5, true);
 
-      ## Clear the contents of the panel
-      $supportTickets->setBodyHtml('');
+      ## Remove any existing children
+      foreach ($supportTickets->getChildren() as $child) {
+        $supportTickets->removeChild( $child->getName() );
+      }
 
       ## Check to see if we have any Sirportly tickets to display
       if ($sirportlyTicketCount > 0) {
