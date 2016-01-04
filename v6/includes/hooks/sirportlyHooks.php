@@ -68,13 +68,17 @@
 
       ## Check to see if we have any Sirportly tickets to display
       if ($sirportlyTicketCount > 0) {
+        ## Set the order
+        $order = 1;
         ## Loop through each of the tickets
         foreach ($latestSirportlyTickets as $key => $ticket) {
           $date = fromMySQLDate($ticket[3], true, true);
 
           $child = $supportTickets->addChild("<strong>#{$ticket[1]} - {$ticket[2]}</strong></br><small>Last Updated: {$date}</small>", array(
             'uri' => "viewticket.php?tid={$ticket[1]}&c={$ticket[0]}",
+            'order' => $order
           ));
+          $order++;
         }
       } else {
         ## Display the "No Recent Tickets Found" message
