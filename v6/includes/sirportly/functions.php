@@ -145,7 +145,7 @@ function sirportlyTickets($contacts)
   $query .= implode(" OR ", $criteria) . ")";
 
   ## Order the tickets by the last update posted at time
-  $query .= " ORDER BY tickets.last_update_posted_at";
+  $query .= " ORDER BY tickets.last_update_posted_at DESC";
 
   ## Run the query
   $result = _doSirportlyAPICall('tickets/spql', array('spql' => $query));
