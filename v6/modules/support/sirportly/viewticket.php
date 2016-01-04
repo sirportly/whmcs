@@ -125,27 +125,28 @@
 
   ## Setup the updates
   $updates = array();
-  foreach ($response['updates'] as $key => $update) {
+  foreach ($response['updates'] as $update) {
+    if (!$update['private']) {
+      ## Sort the attachments
+      $attachments = array();
+      foreach ($update['attachments'] as $attachment) {
+        $attachments[] = array('id' => $attachment['id'], 'name' => $attachment['name']);
+      }
 
-    ## Sort the attachments
-    $attachments = array();
-    foreach ($update['attachments'] as $attachment) {
-      $attachments[] = array('id' => $attachment['id'], 'name' => $attachment['name']);
+      ## Locate the update author type
+      $sirportlyUpdateAuthor = locateSirportlyUpdateAuthor($update['author']['id']);
+
+      $updates[] = array(
+        'id'          => $update['id'],
+        'admin'       => $update['author']['type'] == 'User',
+        'date'        => fromMySQLDate($update['posted_at'], true, true),
+        'name'        => $update['from_name'],
+        'contactid'   => $sirportlyUpdateAuthor['contact_id'],
+        'userid'      => $sirportlyUpdateAuthor['user_id'],
+        'message'     => nl2br($update['message']),
+        'attachments' => $attachments
+      );
     }
-
-    ## Locate the update author type
-    $sirportlyUpdateAuthor = locateSirportlyUpdateAuthor($update['author']['id']);
-
-    $updates[] = array(
-      'id'          => $update['id'],
-      'admin'       => $update['author']['type'] == 'User',
-      'date'        => fromMySQLDate($update['posted_at'], true, true),
-      'name'        => $update['from_name'],
-      'contactid'   => $sirportlyUpdateAuthor['contact_id'],
-      'userid'      => $sirportlyUpdateAuthor['user_id'],
-      'message'     => nl2br($update['message']),
-      'attachments' => $attachments
-    );
   }
 
   krsort($updates);
