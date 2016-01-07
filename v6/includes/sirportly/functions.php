@@ -253,13 +253,15 @@ function formatSirportlyErrors($errors=array()) {
   return $output;
 }
 
-function sirportly_departments()
+function sirportlyDepartments()
 {
   include("config.php");
   $returnArray = array();
   $departments = _doSirportlyAPICall('objects/departments');
-  foreach ($departments as $key => $value) {
-    $returnArray[] = array('id' => $value['id'], 'name' => $value['name']);
+  foreach ($departments as $department) {
+    if (!$department['private']) {
+      $returnArray[] = array('id' => $department['id'], 'name' => $department['name']);
+    }
   }
   return $returnArray;
 }

@@ -42,7 +42,7 @@
   $smarty->assign("email", $clientDetails['email']);
 
   ## Departments
-  $departments = sirportly_departments();
+  $departments = sirportlyDepartments();
   $ca->assign("departments", $departments);
   $ca->assign("deptid", $deptid);
 
