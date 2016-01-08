@@ -24,3 +24,7 @@
   ## to view tickets that were opened by the primary contact, set
   ## this option to false to keep this behaviour.
   $canOnlyViewOwnTickets = false;
+
+  ## The key provided to Sirportly for accessing your data frame, be sure to set this
+  ## to a hard to guess value.
+  $sirportlyFrameKey = 'LONG-RANDOM-STRING';
