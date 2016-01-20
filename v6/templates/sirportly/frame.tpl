@@ -2,7 +2,6 @@
 <html>
 <head>
 <title>Sirportly Frame</title>
-<link href="{$systemurl}/modules/addons/sirportly/stylesheets/frame.css" media="screen" rel="stylesheet" type="text/css" />
 <style type='text/css'>
 {literal}
 
