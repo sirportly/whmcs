@@ -67,6 +67,12 @@
     $vars['products'] = $value;
   }
 
+  ## Client domains
+  $client_domains = localAPI('getclientsdomains', array('clientid' => $client['id']), $administrator['id']);
+  foreach ($client_domains['domains'] as $domain) {
+    $vars['domains'] = $domain;
+  }
+
   $ca = new WHMCS_ClientArea();
   $ca->initPage();
   echo $ca->getSingleTPLOutput("/templates/sirportly/{$template}.tpl", $vars);
