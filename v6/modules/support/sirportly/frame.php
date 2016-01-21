@@ -24,6 +24,18 @@
     die("Invalid frame key specified");
   }
 
+  ## Allow users to specify their own template
+  if (isset($_REQUEST['template'])) {
+    $template = $_REQUEST['template'];
+  } else {
+    $template = 'frame';
+  }
+
+  ## Check to ensure the template exists
+  if (!file_exists("../../../templates/sirportly/{$template}.tpl")) {
+    die("Invalid template name '{$template}' specified");
+  }
+
   foreach ($_REQUEST['contacts'] as $contact) {
     $split = explode(':', $contact);
     if ($split['0'] == 'email') {
@@ -57,4 +69,4 @@
 
   $ca = new WHMCS_ClientArea();
   $ca->initPage();
-  echo $ca->getSingleTPLOutput("/templates/sirportly/frame.tpl", $vars);
+  echo $ca->getSingleTPLOutput("/templates/sirportly/{$template}.tpl", $vars);
