@@ -43,11 +43,20 @@
       if (mysql_num_rows($client)) {
         break;
       }
+      else {
+        $client = select_query('tblcontacts', 'userid', array('email' => $split['1']) );
+        if (mysql_num_rows($client)) {
+          break;
+        }
+      }
     }
   }
 
   if (mysql_num_rows($client)) {
     $client = mysql_fetch_array($client, MYSQL_ASSOC);
+    if ($client['userid'])
+      $client['id'] = $client['userid'];
+
   } else {
     die('No such user');
   }
