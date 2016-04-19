@@ -136,10 +136,6 @@
       ## Locate the update author type
       $sirportlyUpdateAuthor = locateSirportlyUpdateAuthor($update['author']['id']);
 
-      ## Codeblock support
-      $update_message = $update['message'];
-      $update_message = preg_replace('/\\[code\\](.*?)\\[\\/code\\]/s', '<pre>${1}</pre>', $update_message, 1);
-
       $updates[] = array(
         'id'          => $update['id'],
         'admin'       => $update['author']['type'] == 'User',
@@ -147,7 +143,7 @@
         'name'        => $update['from_name'],
         'contactid'   => $sirportlyUpdateAuthor['contact_id'],
         'userid'      => $sirportlyUpdateAuthor['user_id'],
-        'message'     => nl2br($update_message),
+        'message'     => nl2br($update['message']),
         'attachments' => $attachments
       );
     }
