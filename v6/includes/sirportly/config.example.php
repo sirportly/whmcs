@@ -20,6 +20,9 @@
   ## The ID of your `new` ticket status
   $newStatusId = 1;
 
+  ## The ID of the default priority when submitting tickets
+  $newPriorityId = 1;
+
   ## The default WHMCS behaviour is to allow sub accounts access
   ## to view tickets that were opened by the primary contact, set
   ## this option to false to keep this behaviour.

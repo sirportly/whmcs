@@ -47,9 +47,10 @@
   $ca->assign("deptid", $deptid);
 
   ## Priorities
+  $priotity = isset($_POST['priorities']) ? $_POST['priorities'] : $newPriorityId;
   $priorities = sirportly_priorities();
   $ca->assign("priorities", $priorities);
-  $ca->assign("priorityid", $_POST['priorities']);
+  $ca->assign("priorityid", $priotity);
 
   ## Custom fields
   $sirportlyCustomFields = sirportlyCustomFields($deptid, $customfield);
