@@ -24,6 +24,11 @@ function _doSirportlyAPICall($method, $postfields=array(), $jsonDecode=true)
   curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
   curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+  if ( isset($sirportlyCABundlePath) ) {
+    curl_setopt($ch, CURLOPT_CAINFO, $sirportlyCABundlePath);
+  }
+
   $result = curl_exec ($ch);
 
   ## Decode the response
