@@ -296,9 +296,11 @@ function sirportly_upload_attachments($attachments) {
   $returnArray  = array();
   $attachments = rearray_uploaded_files($attachments);
   foreach ($attachments as $attachment) {
-    $params = array('file' => '@' . $attachment['tmp_name'], 'filename' => $attachment['name']);
-    $sirportlyAttachment = _doSirportlyAPICall('tickets/add_attachment', $params);
-    $returnArray[] = $sirportlyAttachment['temporary_token'];
+    if ($attachment['error'] === 0) {
+      $params = array('file' => '@' . $attachment['tmp_name'], 'filename' => $attachment['name']);
+      $sirportlyAttachment = _doSirportlyAPICall('tickets/add_attachment', $params);
+      $returnArray[] = $sirportlyAttachment['temporary_token'];
+    }
   }
   return $returnArray;
 }
