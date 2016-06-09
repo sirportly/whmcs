@@ -35,13 +35,14 @@
 
   foreach ($sirportlyTickets['results'] as $ticket) {
     $tickets[] = array(
-      'tid'         => $ticket[1],
-      'c'           => $ticket[0],
-      'department'  => $ticket[4],
-      'subject'     => $ticket[2],
-      'statusColor' => '#' . $ticket[5],
-      'status'      => $ticket[6],
-      'lastreply'   => fromMySQLDate($ticket[3], true, true),
+      'tid'                 => $ticket[1],
+      'c'                   => $ticket[0],
+      'department'          => $ticket[4],
+      'subject'             => $ticket[2],
+      'statusColor'         => '#' . $ticket[5],
+      'status'              => $ticket[6],
+      'lastreply'           => fromMySQLDate($ticket[3], true, true),
+      'normalisedLastReply' => $ticket[3]
     );
   }
 
