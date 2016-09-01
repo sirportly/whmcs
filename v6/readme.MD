@@ -17,4 +17,16 @@ Please note that this module will only work with WHMCS v6+, if you're still usin
 5. Import the `table.sql` file into your WHMCS database.
 6. Login to your WHMCS admin area. Go to Setup -> General Settings -> Support and set "Sirportly" as the support module
 
-Please note that the Sirportly template for WHMCS has been created to be compatible with the 'Six' WHMCS template. You may need to adjust the template files if you are using any other template.
+#### Customer Data Frame
+
+Data frames allow you to easily display additional information about your customers directly in Sirportly.  You can configure these frames to automatically grab HTML from WHMCS using this module.
+
+To setup the Data Frame firstly open your config.php file located at ```WHMCS_ROOT/includes/sirportly/config.php``` and set the `$sirportlyFrameKey` variable to a **secure** token, this will be used by Sirportly to authenticate itself with your installation.
+
+Next, within Sirportly head to the Data Frames page (Admin > Workflow > Data Frames), hit **Add New Data Frame** and enter the following;
+
+* `Name` - Enter a memorable name for the data frame
+* `URL` - Here you need to enter the base URL of WHMCS plus /modules/support/sirportly/frame.php For example ```http://www.example.com/modules/support/sirportly/frame.php```
+* `Auth Key` - Enter the same value as you entered in your Sirportly config.php file
+
+> Please note that the Sirportly template for WHMCS has been created to be compatible with the 'Six' WHMCS template. You may need to adjust the template files if you are using any other template.
