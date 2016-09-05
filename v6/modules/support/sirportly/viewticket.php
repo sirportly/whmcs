@@ -136,6 +136,10 @@
       ## Locate the update author type
       $sirportlyUpdateAuthor = locateSirportlyUpdateAuthor($update['author']['id']);
 
+      $message = $update['message'];
+      $message = strip_tags($message);
+      $message = nl2br($message);
+
       $updates[] = array(
         'id'          => $update['id'],
         'admin'       => $update['author']['type'] == 'User',
@@ -143,7 +147,7 @@
         'name'        => $update['from_name'],
         'contactid'   => $sirportlyUpdateAuthor['contact_id'],
         'userid'      => $sirportlyUpdateAuthor['user_id'],
-        'message'     => nl2br($update['message']),
+        'message'     => $message,
         'attachments' => $attachments
       );
     }
