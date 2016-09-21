@@ -297,7 +297,8 @@ function sirportly_upload_attachments($attachments) {
   $attachments = rearray_uploaded_files($attachments);
   foreach ($attachments as $attachment) {
     if ($attachment['error'] === 0) {
-      $params = array('file' => '@' . $attachment['tmp_name'], 'filename' => $attachment['name']);
+      $params['file']      = new CurlFile($attachment['tmp_name'], $attachment['type']);
+      $params['filename']  = $attachment['name'];
       $sirportlyAttachment = _doSirportlyAPICall('tickets/add_attachment', $params);
       $returnArray[] = $sirportlyAttachment['temporary_token'];
     }
