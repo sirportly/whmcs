@@ -31,3 +31,10 @@
   ## The key provided to Sirportly for accessing your data frame, be sure to set this
   ## to a hard to guess value.
   $sirportlyFrameKey = 'LONG-RANDOM-STRING';
+    
+  ## Whether the support PIN home panel should be displayed to clients
+  $sirportly_pin_panel = true;
+  
+  ## The phone number to use for the call support button on the PIN panel
+  ## Numbers only apart from + and -
+  $sirportly_pin_panel_phone = "01234567890";

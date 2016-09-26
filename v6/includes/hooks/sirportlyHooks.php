@@ -84,8 +84,61 @@
         ## Display the "No Recent Tickets Found" message
         $child = $supportTickets->addChild("No Recent Tickets Found. If you need any help, please open a ticket.", array());
       }
+      
+      ## Create support PIN home page panel
+      include(ROOTDIR . "/includes/sirportly/config.php");
+      if ($sirportly_pin_panel) {
+      	$sirportlyContact = findOrCreateSirportlyContact($_SESSION['uid'], $_SESSION['cid']);
+      	$sirportlySupportPIN = FindSupportPIN($sirportlyContact);
+      	$supportPhoneURL = 'tel://' . $sirportly_pin_panel_phone;
+
+      	$homePagePanels->addChild('sirportly_pin', array(
+      	  'label' => 'Support PIN',
+      	  'icon' => 'fa-user',
+      	  'order' => 160,
+      	  'extras' => array(
+      	      'color' => 'blue',
+      	      'btn-link' => $supportPhoneURL,
+      	      'btn-text' => 'Call support',
+      	      'btn-icon' => 'fa-phone',
+      	  ),
+      	  'bodyHtml' => '<h4 align="center">' . $sirportlySupportPIN . '</h4>',
+      	  'footerHtml' => '',
+     	 ));
+     	 
+      }
     });
   }
+
+  ## Add support PIN to secondary sidebar
+  if ((APP::getCurrentFileName()=='supporttickets') or (APP::getCurrentFileName()=='submitticket')) {
+	add_hook('ClientAreaSecondarySidebar', 1, function($secondarySidebar){
+    	include(ROOTDIR . "/includes/sirportly/config.php");
+		if($sirportly_pin_panel) {
+
+			$sirportlyContact = findOrCreateSirportlyContact($_SESSION['uid'], $_SESSION['cid']);
+			$sirportlySupportPIN = FindSupportPIN($sirportlyContact);
+			$supportPhoneURL = 'tel://' . $sirportly_pin_panel_phone;
+			
+			$Support_PIN_Sidebar = $secondarySidebar->addChild('Support PIN', array(
+				'label' => 'Support PIN',
+				'uri' => '#',
+				'icon' => 'fa-user'
+			));
+			
+			$Support_PIN_Sidebar->addChild('Support PIN', array(
+				'uri' => '',
+				'label' => '<h4 align="center">' . $sirportlySupportPIN . '</h4>',
+				'order' => 1
+			));
+			
+			$Support_PIN_Sidebar->setFooterHtml(
+				'<a href="' . $supportPhoneURL . '" class="btn btn-success btn-sm btn-block"><i class="fa fa-phone"></i> Call Support</a>'
+			);			
+		}
+  	});
+  }
+
 
   ## This doesn't deserve to live here
   if (App::getCurrentFilename() == 'submitticket') {

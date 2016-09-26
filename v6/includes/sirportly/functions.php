@@ -320,4 +320,11 @@ function rearray_uploaded_files(&$file_post) {
   return $file_ary;
 }
 
+function FindSupportPIN($contactID) {
+	
+	$sirportly_contact = _doSirportlyAPICall('contacts/info', array('contact' => $contactID), true);
+	$sirportly_supportpin = $sirportly_contact['pin'];
+	return $sirportly_supportpin;
+}
+
 ?>
