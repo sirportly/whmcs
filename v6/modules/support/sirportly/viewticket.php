@@ -109,7 +109,7 @@
       $sirportlyTicketUpdate = _doSirportlyAPICall('tickets/post_update', array(
         'ticket'      => $tid,
         'message'     => $replymessage,
-        'attachments' => implode($attachedFiles),
+        'attachments' => implode(",",$attachedFiles),
         'contact'     => $sirportlyContact
       ));
 
