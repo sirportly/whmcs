@@ -320,6 +320,38 @@ function rearray_uploaded_files(&$file_post) {
   return $file_ary;
 }
 
+function formatTimestamp($timestamp, $time = false) {
+  global $CONFIG;
+
+  $epoch = strtotime($timestamp);
+
+  switch ($CONFIG['ClientDateFormat']) {
+    case 'full':
+      $formatted_timestamp = date("jS F Y", $epoch);
+    break;
+    case 'shortmonth':
+      $formatted_timestamp = date("jS M Y", $epoch);
+    break;
+    case 'fullday':
+      $formatted_timestamp = date("l, F jS, Y", $epoch);
+    break;
+    default:
+      $default_date_format = $CONFIG['DateFormat'];
+      $default_date_format = str_replace("YYYY", date("Y", $epoch), $default_date_format);
+      $default_date_format = str_replace("MM", date("m", $epoch), $default_date_format);
+      $default_date_format = str_replace("DD", date("j", $epoch), $default_date_format);
+      $formatted_timestamp = $default_date_format;
+    break;
+  }
+
+  if ($time) {
+    $formatted_timestamp .= " " . date("h:i", $epoch);
+  }
+
+  return $formatted_timestamp;
+}
+
+
 function FindSupportPIN($contactID) {
 	
 	$sirportly_contact = _doSirportlyAPICall('contacts/info', array('contact' => $contactID), true);

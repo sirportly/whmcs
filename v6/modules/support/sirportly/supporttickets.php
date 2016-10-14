@@ -41,7 +41,7 @@
       'subject'             => $ticket[2],
       'statusColor'         => '#' . $ticket[5],
       'status'              => $ticket[6],
-      'lastreply'           => fromMySQLDate($ticket[3], true, true),
+      'lastreply'           => formatTimestamp($ticket[3], true),
       'normalisedLastReply' => $ticket[3]
     );
   }

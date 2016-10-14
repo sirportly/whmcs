@@ -143,7 +143,7 @@
       $updates[] = array(
         'id'          => $update['id'],
         'admin'       => $update['author']['type'] == 'User',
-        'date'        => fromMySQLDate($update['posted_at'], true, true),
+        'date'        => formatTimestamp($update['posted_at'], true),
         'name'        => $update['from_name'],
         'contactid'   => $sirportlyUpdateAuthor['contact_id'],
         'userid'      => $sirportlyUpdateAuthor['user_id'],
