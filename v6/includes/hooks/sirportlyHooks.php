@@ -72,7 +72,7 @@
         $order = 1;
         ## Loop through each of the tickets
         foreach ($latestSirportlyTickets as $key => $ticket) {
-          $date = fromMySQLDate($ticket[3], true, true);
+          $date = formatTimestamp($ticket[3], true);
 
           $child = $supportTickets->addChild("<strong>#{$ticket[1]} - {$ticket[2]}</strong></br><small>Last Updated: {$date}</small>", array(
             'uri' => "viewticket.php?tid={$ticket[1]}&c={$ticket[0]}",
@@ -194,14 +194,14 @@
       ));
       $child->setClass('ticket-details-children');
 
-      $submitted_at = fromMySQLDate($sirportlyTicket['submitted_at'], true, true);
+      $submitted_at = formatTimestamp($sirportlyTicket['submitted_at'], true);
       $child = $supportPanel->addChild('Submitted', array(
         'label' => "<span class='title'>Submitted</span><br>{$submitted_at}",
         'order' => 3
       ));
       $child->setClass('ticket-details-children');
 
-      $updated_at = fromMySQLDate($sirportlyTicket['last_update_posted_at'], true, true);
+      $updated_at = formatTimestamp($sirportlyTicket['last_update_posted_at'], true);
       $child = $supportPanel->addChild('Last_Updated', array(
         'label' => "<span class='title'>Last Updated</span><br>{$updated_at}",
         'order' => 4
