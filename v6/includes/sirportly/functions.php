@@ -345,7 +345,7 @@ function formatTimestamp($timestamp, $time = false) {
   }
 
   if ($time) {
-    $formatted_timestamp .= " " . date("h:i", $epoch);
+    $formatted_timestamp .= " " . date("H:i", $epoch);
   }
 
   return $formatted_timestamp;
