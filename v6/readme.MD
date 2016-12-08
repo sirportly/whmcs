@@ -30,3 +30,10 @@ Next, within Sirportly head to the Data Frames page (Admin > Workflow > Data Fra
 * `Auth Key` - Enter the same value as you entered in your Sirportly config.php file
 
 > Please note that the Sirportly template for WHMCS has been created to be compatible with the 'Six' WHMCS template. You may need to adjust the template files if you are using any other template.
+
+## Single Sign On
+'SSO' allows you to integrate your support centres with WHMCS, all you need to do is navigate to your Sirportly administration area > Ticket Submission > Support Centres > *click support centre name* and enter;
+
+`Single sign-on (SSO) URL` This is the URL to your WHMCS installation and the following path `/modules/support/sirportly/sso.php`
+
+Finally, open your config.php file located at ```WHMCS_ROOT/includes/sirportly/config.php``` and set the `$sirportlySSOAdminId` variable to an ID of one of your WHMCS admin accounts, this is used internally by WHMCS to use the internal API for authenticating.
