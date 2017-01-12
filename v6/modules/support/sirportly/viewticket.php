@@ -137,7 +137,7 @@
       $sirportlyUpdateAuthor = locateSirportlyUpdateAuthor($update['author']['id']);
 
       $message = $update['message'];
-      $message = strip_tags($message);
+      $message = htmlspecialchars($message);
       $message = nl2br($message);
 
       $updates[] = array(
