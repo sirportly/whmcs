@@ -157,10 +157,8 @@ function curl($action, $params = array())
   $params = array_merge($default_params, $params);
 
 	$header = array('X-Auth-Token: '.$settings['token'], 'X-Auth-Secret: '.$settings['secret']);
-	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
 	curl_setopt($curl, CURLOPT_VERBOSE, 0);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
 	curl_setopt($curl, CURLOPT_URL, $url.$action);
 	curl_setopt($curl, CURLOPT_BUFFERSIZE, 131072);
 	curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
